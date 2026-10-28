@@ -1,0 +1,38 @@
+# ---- Tài liệu môn học, không đưa lên git ----
+# Slide bài giảng (PDF)
+Student/
+# Đề bài gốc
+b_o_c_o_d_n_imp302m.md
+# Kế hoạch nội bộ của nhóm
+PLAN.md
+
+# ---- Dữ liệu tải về (tạo lại được, xem README) ----
+data/downloads/
+
+# ---- Môi trường Python ----
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# ---- File trung gian khi biên dịch LaTeX ----
+report/*.aux
+report/*.log
+report/*.out
+report/*.toc
+report/*.bbl
+report/*.blg
+report/*.synctex.gz
+report/*.fdb_latexmk
+report/*.fls
+# Gói Overleaf, tạo lại từ main.tex + figures/
+report/IMP302m_report_overleaf.zip
+
+# ---- Hệ điều hành / editor ----
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+.claude/

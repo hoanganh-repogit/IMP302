@@ -1,0 +1,5 @@
+﻿image,aod_before,aod_after,T,bg_bright,regions_raw,regions_morph,split,count,large,small,time_ms,gt_count,gt_large,gt_small,count_ok,count_error,class_ok,mask_iou
+case1_ideal.jpg,226.6,235.2,148,True,6,6,0,6,3,3,161.61,6,3,3,True,0,True,0.9715
+case2_low_contrast.jpg,92.3,227.2,143,True,6,6,0,6,3,3,178.51,6,3,3,True,0,True,0.9714
+case3_noisy_glare.jpg,225.1,219.6,143,True,35,21,0,6,3,3,189.72,6,3,3,True,0,True,0.9607
+case4_overlapping.jpg,226.6,235.1,147,True,5,5,1,6,3,3,149.99,6,3,3,True,0,True,0.9724

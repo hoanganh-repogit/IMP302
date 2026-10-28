@@ -1,0 +1,203 @@
+{
+  "config": {
+    "work_width": 800,
+    "resize_method": "area",
+    "fshs_low_pct": 0.5,
+    "fshs_high_pct": 99.5,
+    "flatten_light": false,
+    "flatten_se_frac": 0.4,
+    "median_ksize": 5,
+    "gaussian_ksize": 5,
+    "gaussian_sigma": 1.0,
+    "seg_method": "bgsub",
+    "bg_kernel_frac": 0.15,
+    "bg_color": true,
+    "bg_threshold": "triangle",
+    "bg_mad_k": 6.0,
+    "polarity": "auto",
+    "se_size": 5,
+    "open_iter": 1,
+    "close_iter": 1,
+    "fill_holes": true,
+    "connectivity": 4,
+    "min_area_px": 100,
+    "min_area_frac": 0.0003,
+    "split_touching": true,
+    "solidity_thresh": 0.94,
+    "split_min_circularity": 0.35,
+    "clear_border": true,
+    "min_area_rel_median": 0.25,
+    "min_circularity": 0.6,
+    "max_area_frac": 0.05,
+    "classify_method": "otsu",
+    "min_size_ratio": 1.3,
+    "area_threshold": null,
+    "backend": "opencv"
+  },
+  "scale": 1.0,
+  "image_size": [
+    640,
+    640
+  ],
+  "fshs_A_B": [
+    53.0,
+    207.0
+  ],
+  "aod_before": 106.3,
+  "aod_after": 88.37,
+  "segmentation": {
+    "method": "bgsub",
+    "T": 7,
+    "threshold_rule": "triangle",
+    "background_bright": false
+  },
+  "otsu_vs_kmeans": {
+    "otsu_T": 41,
+    "kmeans_T": 41,
+    "kmeans_centers": [
+      3.76,
+      78.85
+    ],
+    "kmeans_iterations": 6,
+    "iou": 1.0
+  },
+  "stats": {
+    "regions_raw": 49,
+    "regions_after_morph": 14,
+    "a_min": 122,
+    "regions_after_area_filter": 5,
+    "split": [
+      {
+        "label": 2,
+        "solidity": 0.935,
+        "parts": 4
+      }
+    ],
+    "rejected_by_shape": 1,
+    "n_obj": 6
+  },
+  "classification": {
+    "method": "otsu",
+    "threshold": 341.0,
+    "warning": null,
+    "n_large": 3,
+    "n_small": 3
+  },
+  "timings_ms": {
+    "1_preprocess": 67.08,
+    "2_segmentation": 8.84,
+    "3_label_features": 46.49,
+    "4_classify": 0.42,
+    "total": 122.84
+  },
+  "objects": [
+    {
+      "id": 1,
+      "label": 2,
+      "cx": 235.38349514563106,
+      "cy": 286.4466019417476,
+      "x": 228,
+      "y": 278,
+      "w": 17,
+      "h": 16,
+      "area": 206,
+      "perimeter": 54.38477631085023,
+      "diameter": 17.46424919657298,
+      "orientation": 156.3706222693432,
+      "circularity": 0.875230394589438,
+      "solidity": 0.9493087557603687,
+      "eq_diameter": 16.195287778099022,
+      "cls": "Small"
+    },
+    {
+      "id": 2,
+      "label": 6,
+      "cx": 235.94117647058823,
+      "cy": 297.02941176470586,
+      "x": 228,
+      "y": 293,
+      "w": 17,
+      "h": 9,
+      "area": 136,
+      "perimeter": 46.24264068711929,
+      "diameter": 17.46424919657298,
+      "orientation": 156.3706222693432,
+      "circularity": 0.7992148031714184,
+      "solidity": 0.951048951048951,
+      "eq_diameter": 13.159049284959082,
+      "cls": "Small"
+    },
+    {
+      "id": 3,
+      "label": 3,
+      "cx": 208.88235294117646,
+      "cy": 308.9726890756302,
+      "x": 200,
+      "y": 292,
+      "w": 18,
+      "h": 36,
+      "area": 476,
+      "perimeter": 88.76955262170047,
+      "diameter": 35.22782990761707,
+      "orientation": 83.480198248343,
+      "circularity": 0.7590821070989943,
+      "solidity": 0.9444444444444444,
+      "eq_diameter": 24.61832697999475,
+      "cls": "Large"
+    },
+    {
+      "id": 4,
+      "label": 7,
+      "cx": 239.07608695652175,
+      "cy": 309.19565217391306,
+      "x": 229,
+      "y": 303,
+      "w": 18,
+      "h": 16,
+      "area": 184,
+      "perimeter": 55.21320343559643,
+      "diameter": 19.1049731745428,
+      "orientation": 42.87890360333856,
+      "circularity": 0.7584759180543625,
+      "solidity": 0.9108910891089109,
+      "eq_diameter": 15.306079714651624,
+      "cls": "Small"
+    },
+    {
+      "id": 5,
+      "label": 4,
+      "cx": 243.5604770017036,
+      "cy": 354.9352640545145,
+      "x": 234,
+      "y": 336,
+      "w": 20,
+      "h": 41,
+      "area": 587,
+      "perimeter": 101.01219330881976,
+      "diameter": 40.311288741492746,
+      "orientation": 82.8749836510982,
+      "circularity": 0.7229368507699862,
+      "solidity": 0.9483037156704361,
+      "eq_diameter": 27.33846397952051,
+      "cls": "Large"
+    },
+    {
+      "id": 6,
+      "label": 5,
+      "cx": 274.49259757738895,
+      "cy": 357.55181695827724,
+      "x": 264,
+      "y": 336,
+      "w": 21,
+      "h": 46,
+      "area": 743,
+      "perimeter": 111.84062043356595,
+      "diameter": 45.39823785126467,
+      "orientation": 82.40535663140855,
+      "circularity": 0.7464479720537486,
+      "solidity": 0.9699738903394256,
+      "eq_diameter": 30.757389059187485,
+      "cls": "Large"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+﻿image,aod_before,aod_after,T,bg_bright,regions_raw,regions_morph,split,count,large,small,time_ms,gt_count,gt_large,gt_small,count_ok,count_error,tp,fp,fn
+hf_0000.jpg,101.5,109.3,9,False,98,40,5,5,3,2,188.47,7,,,False,-2,5,0,2
+hf_0003.jpg,140.1,149.8,8,False,137,59,8,8,3,5,114.04,8,,,True,0,8,0,0
+hf_0008.jpg,106.3,88.4,7,False,49,14,3,6,3,3,122.84,4,,,False,2,4,2,0
+hf_0015.jpg,135.8,182.8,5,False,14,11,0,7,3,4,116.64,7,,,True,0,7,0,0
+hf_0018.jpg,170.0,178.4,6,False,18,13,1,8,3,5,60.61,9,,,False,-1,8,0,1
+hf_0023.jpg,87.7,64.9,10,False,18,7,0,5,2,3,89.83,5,,,True,0,5,0,0
+hf_0024.jpg,127.6,137.0,15,False,140,51,0,3,2,1,131.3,5,,,False,-2,3,0,2
+hf_0026.jpg,92.9,67.5,9,False,36,13,6,5,2,3,140.3,5,,,True,0,5,0,0

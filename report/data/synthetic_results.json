@@ -1,0 +1,118 @@
+{
+  "case1_ideal": {
+    "stats": {
+      "regions_raw": 6,
+      "regions_after_morph": 6,
+      "a_min": 128,
+      "regions_after_area_filter": 6,
+      "split": [],
+      "rejected_by_shape": 0,
+      "n_obj": 6
+    },
+    "T": 148,
+    "aod": [
+      226.6164302434457,
+      235.16518960674156
+    ],
+    "class": {
+      "method": "otsu",
+      "threshold": 5196.0,
+      "warning": null,
+      "n_large": 3,
+      "n_small": 3
+    }
+  },
+  "case2_low_contrast": {
+    "stats": {
+      "regions_raw": 6,
+      "regions_after_morph": 6,
+      "a_min": 128,
+      "regions_after_area_filter": 6,
+      "split": [],
+      "rejected_by_shape": 0,
+      "n_obj": 6
+    },
+    "T": 143,
+    "aod": [
+      92.28075842696629,
+      227.18338483146067
+    ],
+    "class": {
+      "method": "otsu",
+      "threshold": 5193.0,
+      "warning": null,
+      "n_large": 3,
+      "n_small": 3
+    }
+  },
+  "case3_noisy_glare": {
+    "stats": {
+      "regions_raw": 35,
+      "regions_after_morph": 21,
+      "a_min": 128,
+      "regions_after_area_filter": 6,
+      "split": [],
+      "rejected_by_shape": 0,
+      "n_obj": 6
+    },
+    "T": 143,
+    "aod": [
+      225.13273876404494,
+      219.59116807116104
+    ],
+    "class": {
+      "method": "otsu",
+      "threshold": 5208.0,
+      "warning": null,
+      "n_large": 3,
+      "n_small": 3
+    }
+  },
+  "case4_overlapping": {
+    "stats": {
+      "regions_raw": 5,
+      "regions_after_morph": 5,
+      "a_min": 128,
+      "regions_after_area_filter": 5,
+      "split": [
+        {
+          "label": 3,
+          "solidity": 0.9,
+          "parts": 2
+        }
+      ],
+      "rejected_by_shape": 0,
+      "n_obj": 6
+    },
+    "T": 147,
+    "aod": [
+      226.64750936329588,
+      235.110468164794
+    ],
+    "class": {
+      "method": "otsu",
+      "threshold": 5194.5,
+      "warning": null,
+      "n_large": 3,
+      "n_small": 3
+    }
+  },
+  "case4_nosplit": {
+    "stats": {
+      "regions_raw": 5,
+      "regions_after_morph": 5,
+      "a_min": 128,
+      "regions_after_area_filter": 5,
+      "split": [],
+      "rejected_by_shape": 0,
+      "n_obj": 5
+    },
+    "class": {
+      "method": "otsu",
+      "threshold": 4672.0,
+      "warning": null,
+      "n_large": 4,
+      "n_small": 1
+    }
+  }
+}

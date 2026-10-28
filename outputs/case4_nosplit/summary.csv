@@ -1,0 +1,2 @@
+﻿image,aod_before,aod_after,T,bg_bright,regions_raw,regions_morph,split,count,large,small,time_ms,gt_count,gt_large,gt_small,count_ok,count_error,class_ok,mask_iou
+case4_overlapping.jpg,226.6,235.1,147,True,5,5,0,5,4,1,146.25,6,3,3,False,-1,False,0.9724

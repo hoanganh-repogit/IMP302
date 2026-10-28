@@ -1,0 +1,16 @@
+{
+  "n_images": 100,
+  "image_size": "640x640",
+  "numpy": {
+    "1_preprocess": 149.707,
+    "2_segmentation": 5.5643,
+    "3_label_features": 41.20039999999999,
+    "4_classify": 0.09549999999999999
+  },
+  "opencv": {
+    "1_preprocess": 41.1338,
+    "2_segmentation": 3.594,
+    "3_label_features": 20.359699999999997,
+    "4_classify": 0.1026
+  }
+}

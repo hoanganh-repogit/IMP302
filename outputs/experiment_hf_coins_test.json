@@ -1,0 +1,126 @@
+{
+  "A. Gốc: Otsu trên ảnh xám": {
+    "overrides": {},
+    "n_images": 480,
+    "count_exact_acc": 0.12916666666666668,
+    "count_within1_acc": 0.32916666666666666,
+    "count_mae": 4.575,
+    "over_count_images": 233,
+    "under_count_images": 185,
+    "mean_time_ms": 512.606,
+    "tp": 1727,
+    "fp": 2561,
+    "fn": 1659,
+    "precision": 0.4027518656716418,
+    "recall": 0.5100413467217956,
+    "f1": 0.4500912170966901
+  },
+  "C. K-Means trên ảnh xám": {
+    "overrides": {
+      "seg_method": "kmeans"
+    },
+    "n_images": 480,
+    "count_exact_acc": 0.12083333333333333,
+    "count_within1_acc": 0.32708333333333334,
+    "count_mae": 4.5125,
+    "over_count_images": 247,
+    "under_count_images": 175,
+    "mean_time_ms": 565.6833958333334,
+    "tp": 1787,
+    "fp": 2547,
+    "fn": 1599,
+    "precision": 0.41232118135671436,
+    "recall": 0.5277613703484938,
+    "f1": 0.46295336787564767
+  },
+  "G. Trừ nền (Lab) + Triangle": {
+    "overrides": {
+      "seg_method": "bgsub"
+    },
+    "n_images": 480,
+    "count_exact_acc": 0.075,
+    "count_within1_acc": 0.15416666666666667,
+    "count_mae": 8.854166666666666,
+    "over_count_images": 442,
+    "under_count_images": 2,
+    "mean_time_ms": 504.50804166666666,
+    "tp": 3344,
+    "fp": 4288,
+    "fn": 42,
+    "precision": 0.4381551362683438,
+    "recall": 0.9875959834613113,
+    "f1": 0.6070067162824468
+  },
+  "N. M + bỏ vụn < 0.25 x trung vị": {
+    "overrides": {
+      "seg_method": "bgsub",
+      "min_circularity": 0.5,
+      "max_area_frac": 0.05,
+      "clear_border": true,
+      "split_min_circularity": 0.35,
+      "min_area_rel_median": 0.25
+    },
+    "n_images": 480,
+    "count_exact_acc": 0.6145833333333334,
+    "count_within1_acc": 0.84375,
+    "count_mae": 0.8291666666666667,
+    "over_count_images": 120,
+    "under_count_images": 65,
+    "mean_time_ms": 497.6240833333333,
+    "tp": 3269,
+    "fp": 339,
+    "fn": 117,
+    "precision": 0.9060421286031042,
+    "recall": 0.9654459539279385,
+    "f1": 0.9348012582213325
+  },
+  "V. N + cửa sổ 0.15 + tròn>=0.6 [CHỐT]": {
+    "overrides": {
+      "seg_method": "bgsub",
+      "min_circularity": 0.6,
+      "max_area_frac": 0.05,
+      "clear_border": true,
+      "split_min_circularity": 0.35,
+      "min_area_rel_median": 0.25,
+      "bg_kernel_frac": 0.15
+    },
+    "n_images": 480,
+    "count_exact_acc": 0.6541666666666667,
+    "count_within1_acc": 0.8416666666666667,
+    "count_mae": 0.7708333333333334,
+    "over_count_images": 98,
+    "under_count_images": 68,
+    "mean_time_ms": 513.5369374999999,
+    "tp": 3247,
+    "fp": 277,
+    "fn": 139,
+    "precision": 0.9213961407491487,
+    "recall": 0.9589486119314826,
+    "f1": 0.9397973950795948
+  },
+  "X. V nhưng tắt Watershed": {
+    "overrides": {
+      "seg_method": "bgsub",
+      "min_circularity": 0.6,
+      "max_area_frac": 0.05,
+      "clear_border": true,
+      "split_min_circularity": 0.35,
+      "min_area_rel_median": 0.25,
+      "bg_kernel_frac": 0.15,
+      "split_touching": false
+    },
+    "n_images": 480,
+    "count_exact_acc": 0.6083333333333333,
+    "count_within1_acc": 0.8270833333333333,
+    "count_mae": 0.7666666666666667,
+    "over_count_images": 47,
+    "under_count_images": 141,
+    "mean_time_ms": 492.6195416666667,
+    "tp": 3119,
+    "fp": 135,
+    "fn": 267,
+    "precision": 0.9585125998770744,
+    "recall": 0.9211458948611931,
+    "f1": 0.9394578313253011
+  }
+}

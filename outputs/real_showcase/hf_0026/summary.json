@@ -1,0 +1,190 @@
+{
+  "config": {
+    "work_width": 800,
+    "resize_method": "area",
+    "fshs_low_pct": 0.5,
+    "fshs_high_pct": 99.5,
+    "flatten_light": false,
+    "flatten_se_frac": 0.4,
+    "median_ksize": 5,
+    "gaussian_ksize": 5,
+    "gaussian_sigma": 1.0,
+    "seg_method": "bgsub",
+    "bg_kernel_frac": 0.15,
+    "bg_color": true,
+    "bg_threshold": "triangle",
+    "bg_mad_k": 6.0,
+    "polarity": "auto",
+    "se_size": 5,
+    "open_iter": 1,
+    "close_iter": 1,
+    "fill_holes": true,
+    "connectivity": 4,
+    "min_area_px": 100,
+    "min_area_frac": 0.0003,
+    "split_touching": true,
+    "solidity_thresh": 0.94,
+    "split_min_circularity": 0.35,
+    "clear_border": true,
+    "min_area_rel_median": 0.25,
+    "min_circularity": 0.6,
+    "max_area_frac": 0.05,
+    "classify_method": "otsu",
+    "min_size_ratio": 1.3,
+    "area_threshold": null,
+    "backend": "opencv"
+  },
+  "scale": 1.0,
+  "image_size": [
+    640,
+    640
+  ],
+  "fshs_A_B": [
+    35.0,
+    254.0
+  ],
+  "aod_before": 92.9,
+  "aod_after": 67.49,
+  "segmentation": {
+    "method": "bgsub",
+    "T": 9,
+    "threshold_rule": "triangle",
+    "background_bright": false
+  },
+  "otsu_vs_kmeans": {
+    "otsu_T": 60,
+    "kmeans_T": 60,
+    "kmeans_centers": [
+      3.23,
+      117.07
+    ],
+    "kmeans_iterations": 4,
+    "iou": 1.0
+  },
+  "stats": {
+    "regions_raw": 36,
+    "regions_after_morph": 13,
+    "a_min": 122,
+    "regions_after_area_filter": 7,
+    "split": [
+      {
+        "label": 1,
+        "solidity": 0.802,
+        "parts": 6
+      },
+      {
+        "label": 4,
+        "solidity": 0.939,
+        "parts": 2
+      }
+    ],
+    "rejected_by_shape": 1,
+    "n_obj": 5
+  },
+  "classification": {
+    "method": "otsu",
+    "threshold": 6907.0,
+    "warning": null,
+    "n_large": 2,
+    "n_small": 3
+  },
+  "timings_ms": {
+    "1_preprocess": 85.3,
+    "2_segmentation": 5.26,
+    "3_label_features": 49.44,
+    "4_classify": 0.29,
+    "total": 140.3
+  },
+  "objects": [
+    {
+      "id": 1,
+      "label": 1,
+      "cx": 149.17668939863609,
+      "cy": 159.58338499690018,
+      "x": 116,
+      "y": 114,
+      "w": 68,
+      "h": 92,
+      "area": 4839,
+      "perimeter": 265.03657992645935,
+      "diameter": 91.92388155425118,
+      "orientation": 112.38013505195958,
+      "circularity": 0.8656729530860108,
+      "solidity": 0.9851384364820847,
+      "eq_diameter": 78.49335103671808,
+      "cls": "Small"
+    },
+    {
+      "id": 2,
+      "label": 2,
+      "cx": 436.820773183264,
+      "cy": 209.8004648886714,
+      "x": 388,
+      "y": 158,
+      "w": 100,
+      "h": 103,
+      "area": 8174,
+      "perimeter": 338.3919189857866,
+      "diameter": 111.19802156513397,
+      "orientation": 131.7191192273906,
+      "circularity": 0.8970249667765313,
+      "solidity": 0.9876752054132432,
+      "eq_diameter": 102.01695956391379,
+      "cls": "Large"
+    },
+    {
+      "id": 3,
+      "label": 3,
+      "cx": 171.4845744680851,
+      "cy": 370.14078014184395,
+      "x": 136,
+      "y": 322,
+      "w": 73,
+      "h": 97,
+      "area": 5640,
+      "perimeter": 286.69343417595167,
+      "diameter": 96.62815324738438,
+      "orientation": 96.53663364879706,
+      "circularity": 0.8622902474248542,
+      "solidity": 0.980528511821975,
+      "eq_diameter": 84.7412003237287,
+      "cls": "Small"
+    },
+    {
+      "id": 4,
+      "label": 4,
+      "cx": 80.67688407467158,
+      "cy": 391.4259045863102,
+      "x": 50,
+      "y": 348,
+      "w": 65,
+      "h": 87,
+      "area": 4339,
+      "perimeter": 251.62236636408622,
+      "diameter": 87.47571091451616,
+      "orientation": 100.53918372862823,
+      "circularity": 0.861194067620008,
+      "solidity": 0.9787953981502369,
+      "eq_diameter": 74.3275614062904,
+      "cls": "Small"
+    },
+    {
+      "id": 5,
+      "label": 5,
+      "cx": 294.4923283682383,
+      "cy": 523.5354462985777,
+      "x": 247,
+      "y": 465,
+      "w": 97,
+      "h": 117,
+      "area": 8929,
+      "perimeter": 360.04877323527904,
+      "diameter": 119.33147112141039,
+      "orientation": 76.42956561483851,
+      "circularity": 0.8655457254753287,
+      "solidity": 0.9786277948268304,
+      "eq_diameter": 106.62436820417868,
+      "cls": "Large"
+    }
+  ]
+}

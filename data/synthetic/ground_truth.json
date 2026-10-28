@@ -1,0 +1,178 @@
+{
+  "case1_ideal.jpg": {
+    "count": 6,
+    "large": 3,
+    "small": 3,
+    "mask": "gt/case1_ideal_mask.png",
+    "objects": [
+      {
+        "cx": 763,
+        "cy": 543,
+        "r": 95,
+        "cls": "Large"
+      },
+      {
+        "cx": 1144,
+        "cy": 901,
+        "r": 95,
+        "cls": "Large"
+      },
+      {
+        "cx": 172,
+        "cy": 242,
+        "r": 95,
+        "cls": "Large"
+      },
+      {
+        "cx": 444,
+        "cy": 367,
+        "r": 62,
+        "cls": "Small"
+      },
+      {
+        "cx": 1322,
+        "cy": 465,
+        "r": 62,
+        "cls": "Small"
+      },
+      {
+        "cx": 478,
+        "cy": 822,
+        "r": 62,
+        "cls": "Small"
+      }
+    ]
+  },
+  "case2_low_contrast.jpg": {
+    "count": 6,
+    "large": 3,
+    "small": 3,
+    "mask": "gt/case2_low_contrast_mask.png",
+    "objects": [
+      {
+        "cx": 1255,
+        "cy": 338,
+        "r": 95,
+        "cls": "Large"
+      },
+      {
+        "cx": 272,
+        "cy": 368,
+        "r": 95,
+        "cls": "Large"
+      },
+      {
+        "cx": 683,
+        "cy": 790,
+        "r": 95,
+        "cls": "Large"
+      },
+      {
+        "cx": 730,
+        "cy": 173,
+        "r": 62,
+        "cls": "Small"
+      },
+      {
+        "cx": 566,
+        "cy": 621,
+        "r": 62,
+        "cls": "Small"
+      },
+      {
+        "cx": 1243,
+        "cy": 735,
+        "r": 62,
+        "cls": "Small"
+      }
+    ]
+  },
+  "case3_noisy_glare.jpg": {
+    "count": 6,
+    "large": 3,
+    "small": 3,
+    "mask": "gt/case3_noisy_glare_mask.png",
+    "objects": [
+      {
+        "cx": 1220,
+        "cy": 194,
+        "r": 95,
+        "cls": "Large"
+      },
+      {
+        "cx": 367,
+        "cy": 318,
+        "r": 95,
+        "cls": "Large"
+      },
+      {
+        "cx": 369,
+        "cy": 779,
+        "r": 95,
+        "cls": "Large"
+      },
+      {
+        "cx": 1322,
+        "cy": 606,
+        "r": 62,
+        "cls": "Small"
+      },
+      {
+        "cx": 147,
+        "cy": 175,
+        "r": 62,
+        "cls": "Small"
+      },
+      {
+        "cx": 562,
+        "cy": 474,
+        "r": 62,
+        "cls": "Small"
+      }
+    ]
+  },
+  "case4_overlapping.jpg": {
+    "count": 6,
+    "large": 3,
+    "small": 3,
+    "mask": "gt/case4_overlapping_mask.png",
+    "objects": [
+      {
+        "cx": 600,
+        "cy": 560,
+        "r": 62,
+        "cls": "Small"
+      },
+      {
+        "cx": 716,
+        "cy": 560,
+        "r": 62,
+        "cls": "Small"
+      },
+      {
+        "cx": 1105,
+        "cy": 895,
+        "r": 95,
+        "cls": "Large"
+      },
+      {
+        "cx": 1314,
+        "cy": 542,
+        "r": 95,
+        "cls": "Large"
+      },
+      {
+        "cx": 1394,
+        "cy": 922,
+        "r": 95,
+        "cls": "Large"
+      },
+      {
+        "cx": 1465,
+        "cy": 163,
+        "r": 62,
+        "cls": "Small"
+      }
+    ]
+  }
+}
