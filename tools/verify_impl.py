@@ -1,7 +1,7 @@
-"""Kiểm chứng các thuật toán tự cài đặt (NumPy) so với OpenCV: kết quả & thời gian.
+"""Verify the own (NumPy) implementations against OpenCV: results & timing.
 
-Chạy:  python tools/verify_impl.py [đường_dẫn_ảnh]
-Mặc định dùng data/synthetic/case3_noisy_glare.jpg.
+Run:  python tools/verify_impl.py [image_path]
+Defaults to data/synthetic/case3_noisy_glare.jpg.
 """
 import sys
 import time
@@ -36,33 +36,33 @@ def main():
 
     (g1, t1) = timed(pre.median_filter, gray, 5, "numpy")
     (g2, t2) = timed(pre.median_filter, gray, 5, "opencv")
-    rows.append(("Lọc trung vị 5x5", f"khác biệt tối đa = {np.abs(g1.astype(int) - g2).max()}", t1, t2))
+    rows.append(("Median filter 5x5", f"max difference = {np.abs(g1.astype(int) - g2).max()}", t1, t2))
 
     (s1, t1) = timed(pre.gaussian_filter, g1, 5, 1.0, "numpy")
     (s2, t2) = timed(pre.gaussian_filter, g1, 5, 1.0, "opencv")
-    rows.append(("Lọc Gaussian 5x5", f"khác biệt tối đa = {np.abs(s1.astype(int) - s2).max()}", t1, t2))
+    rows.append(("Gaussian filter 5x5", f"max difference = {np.abs(s1.astype(int) - s2).max()}", t1, t2))
 
     ((T1, _), t1) = timed(seg.otsu_threshold, s1, "numpy")
     ((T2, _), t2) = timed(seg.otsu_threshold, s1, "opencv")
-    rows.append(("Ngưỡng Otsu", f"T* tự cài = {T1}, OpenCV = {T2}", t1, t2))
+    rows.append(("Otsu threshold", f"T* own = {T1}, OpenCV = {T2}", t1, t2))
 
     mask, _ = seg.segment(s1, cfg)
     se = morph.structuring_element(5)
     (e1, t1) = timed(morph.erode, mask, se, "numpy")
     (e2, t2) = timed(morph.erode, mask, se, "opencv")
-    rows.append(("Phép Co (Erosion)", f"trùng khớp = {np.array_equal(e1, e2)}", t1, t2))
+    rows.append(("Erosion", f"identical = {np.array_equal(e1, e2)}", t1, t2))
     (d1, t1) = timed(morph.dilate, mask, se, "numpy")
     (d2, t2) = timed(morph.dilate, mask, se, "opencv")
-    rows.append(("Phép Giãn (Dilation)", f"trùng khớp = {np.array_equal(d1, d2)}", t1, t2))
+    rows.append(("Dilation", f"identical = {np.array_equal(d1, d2)}", t1, t2))
 
     for conn in (4, 8):
         ((l1, n1), t1) = timed(lab.label, mask, conn, "numpy", repeat=1)
         ((l2, n2), t2) = timed(lab.label, mask, conn, "opencv", repeat=1)
-        rows.append((f"Gán nhãn {conn}-liên thông",
-                     f"số vùng {n1} / {n2}, cùng phân hoạch = {lab.same_partition(l1, l2)}", t1, t2))
+        rows.append((f"{conn}-connected labeling",
+                     f"regions {n1} / {n2}, same partition = {lab.same_partition(l1, l2)}", t1, t2))
 
-    print(f"Ảnh: {path}  ({gray.shape[1]}x{gray.shape[0]})\n")
-    print(f"{'Thuật toán':<26}{'Kết quả so sánh':<46}{'Tự cài (ms)':>12}{'OpenCV (ms)':>13}")
+    print(f"Image: {path}  ({gray.shape[1]}x{gray.shape[0]})\n")
+    print(f"{'Algorithm':<26}{'Comparison':<46}{'Own (ms)':>12}{'OpenCV (ms)':>13}")
     print("-" * 97)
     for name, res, ta, tb in rows:
         print(f"{name:<26}{res:<46}{ta:>12.2f}{tb:>13.2f}")

@@ -78,11 +78,11 @@
     "n_small": 1
   },
   "timings_ms": {
-    "1_preprocess": 69.75,
-    "2_segmentation": 10.01,
-    "3_label_features": 51.33,
-    "4_classify": 0.21,
-    "total": 131.3
+    "1_preprocess": 126.7,
+    "2_segmentation": 14.35,
+    "3_label_features": 75.49,
+    "4_classify": 0.35,
+    "total": 216.89
   },
   "objects": [
     {

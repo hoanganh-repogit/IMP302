@@ -1,10 +1,10 @@
-"""Giai đoạn 2b – Hình thái học nhị phân (Chương 1.2 & 2.3)."""
+"""Stage 2b – Binary morphology (Lectures 1.2 & 2.3)."""
 import cv2
 import numpy as np
 
 
 def structuring_element(size):
-    """SE hình elip size x size (đối xứng tâm nên S và ảnh phản xạ của S trùng nhau)."""
+    """Elliptical size x size SE (centrally symmetric, so S equals its reflection)."""
     return cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (size, size))
 
 
@@ -13,12 +13,12 @@ def _offsets(se):
 
 
 def erode(mask, se, backend="numpy"):
-    """(b ⊖ S)(x) = 1  <=>  S đặt tại x nằm trọn trong B (mọi pixel dưới SE đều bằng 1)."""
+    """(b ⊖ S)(x) = 1  <=>  S placed at x lies entirely inside B (every pixel under the SE is 1)."""
     if backend == "opencv":
         return cv2.erode(mask.astype(np.uint8), se)
     h, w = mask.shape
     ph, pw = se.shape[0] // 2, se.shape[1] // 2
-    # Ngoài biên coi như = 1 (giống OpenCV) để vật chạm mép ảnh không bị ăn mòn từ phía ngoài
+    # Outside the border counts as 1 (as in OpenCV) so objects touching the edge are not eroded from outside
     p = np.pad(mask.astype(bool), ((ph, ph), (pw, pw)), constant_values=True)
     out = np.ones((h, w), dtype=bool)
     for dy, dx in _offsets(se):
@@ -27,7 +27,7 @@ def erode(mask, se, backend="numpy"):
 
 
 def dilate(mask, se, backend="numpy"):
-    """(b ⊕ S)(x) = 1  <=>  S đặt tại x giao B khác rỗng (ít nhất 1 pixel dưới SE bằng 1)."""
+    """(b ⊕ S)(x) = 1  <=>  S placed at x intersects B (at least one pixel under the SE is 1)."""
     if backend == "opencv":
         return cv2.dilate(mask.astype(np.uint8), se)
     h, w = mask.shape
@@ -40,7 +40,7 @@ def dilate(mask, se, backend="numpy"):
 
 
 def opening(mask, se, iterations=1, backend="numpy"):
-    """b ∘ S = (b ⊖ S) ⊕ S : xóa nhiễu hạt nhỏ hơn SE ngoài nền."""
+    """b ∘ S = (b ⊖ S) ⊕ S : removes background specks smaller than the SE."""
     out = mask
     for _ in range(iterations):
         out = erode(out, se, backend)
@@ -50,7 +50,7 @@ def opening(mask, se, iterations=1, backend="numpy"):
 
 
 def closing(mask, se, iterations=1, backend="numpy"):
-    """b • S = (b ⊕ S) ⊖ S : hàn khe nứt, bít lỗ nhỏ hơn SE bên trong vật thể."""
+    """b • S = (b ⊕ S) ⊖ S : seals cracks and holes smaller than the SE inside objects."""
     out = mask
     for _ in range(iterations):
         out = dilate(out, se, backend)
@@ -60,14 +60,14 @@ def closing(mask, se, iterations=1, backend="numpy"):
 
 
 def fill_holes(mask):
-    """Lấp mọi lỗ đen nằm trọn bên trong vật thể (vùng nền không thông ra viền ảnh).
+    """Fill every black hole lying fully inside an object (background not connected to the border).
 
-    Bổ sung cho Closing: vết lóa lớn hơn SE 5x5 thì Closing không bít được.
+    Complements closing: glare spots larger than the 5x5 SE cannot be sealed by closing.
     """
     m = (mask > 0).astype(np.uint8)
     h, w = m.shape
     ff = np.zeros((h + 2, w + 2), np.uint8)
     ff[1:-1, 1:-1] = m
-    cv2.floodFill(ff, np.zeros((h + 4, w + 4), np.uint8), (0, 0), 1)  # loang nền từ viền
+    cv2.floodFill(ff, np.zeros((h + 4, w + 4), np.uint8), (0, 0), 1)  # flood the background from the border
     holes = ff[1:-1, 1:-1] == 0
     return (m | holes).astype(np.uint8)

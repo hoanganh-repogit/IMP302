@@ -1,30 +1,30 @@
-Tập dev: 480 ảnh
+dev split: 480 images
 
-Cấu hình                                   Đếm đúng     ±1    MAE   Prec    Rec     F1     ms
+Configuration                                 Exact     ±1    MAE   Prec    Rec     F1     ms
 ---------------------------------------------------------------------------------------------
-A. Gốc: Otsu trên ảnh xám                     12.5%  33.3%   3.78  0.472  0.567  0.515    548
-B. Gốc + san phẳng ánh sáng                    9.6%  27.5%   7.51  0.314  0.567  0.404    810
-C. K-Means trên ảnh xám                       11.9%  32.7%   3.75  0.483  0.585  0.529    408
-D. Trừ nền (xám) + Otsu                       23.1%  47.1%   5.09  0.516  0.842  0.640    284
-E. Trừ nền (xám) + Triangle                    8.5%  14.2%   9.02  0.424  0.957  0.587    290
-F. Trừ nền (Lab) + Otsu                       22.3%  46.0%   5.37  0.537  0.920  0.678    317
-G. Trừ nền (Lab) + Triangle                    9.4%  17.1%   9.22  0.431  0.987  0.600    311
-H. Trừ nền (Lab) + MAD k=6                    13.5%  21.9%  11.41  0.376  0.978  0.543    323
-I. G + lọc hình dạng (tròn>=0.5, A<=5%)       12.5%  22.9%   6.84  0.502  0.981  0.664    312
-J. G + lọc hình dạng (tròn>=0.6, A<=5%)       14.6%  28.3%   5.49  0.554  0.976  0.706    318
-K. I nhưng tắt Watershed                      32.7%  64.8%   1.48  0.821  0.928  0.871    270
-L. I + bỏ vùng chạm viền                      44.6%  64.8%   1.52  0.817  0.978  0.891    312
-M. L + chỉ Watershed vùng tròn>=0.35          50.0%  70.4%   1.17  0.863  0.968  0.912    537
-N. M + bỏ vụn < 0.25 x trung vị               66.0%  83.5%   0.69  0.925  0.966  0.945    536
-O. N với tròn>=0.6                            67.3%  85.0%   0.62  0.938  0.961  0.949    531
-P. N với tròn>=0.4                            64.8%  82.3%   0.74  0.918  0.969  0.943    527
-Q. N với ngưỡng Otsu                          59.6%  81.9%   0.86  0.949  0.887  0.917    517
-R. N với ảnh xám (không màu)                  55.0%  75.8%   1.02  0.867  0.910  0.888    493
-S. N với cửa sổ nền 0.15                      69.0%  86.9%   0.65  0.933  0.970  0.951    534
-T. N với cửa sổ nền 0.35                      62.3%  84.0%   0.69  0.933  0.955  0.944    526
-U. N nhưng tắt Watershed                      62.7%  84.6%   0.70  0.945  0.926  0.936    475
-V. N + cửa sổ 0.15 + tròn>=0.6 [CHỐT]         70.0%  87.9%   0.58  0.944  0.963  0.954    520
-X. V nhưng tắt Watershed                      64.4%  85.4%   0.64  0.975  0.926  0.950    484
-W. N + cửa sổ 0.20 + tròn>=0.6                68.1%  87.3%   0.62  0.938  0.961  0.950    527
+A. Baseline: Otsu on gray image               12.5%  33.3%   3.78  0.472  0.567  0.515    548
+B. Baseline + illumination flattening          9.6%  27.5%   7.51  0.314  0.567  0.404    810
+C. K-Means on gray image                      11.9%  32.7%   3.75  0.483  0.585  0.529    408
+D. Background diff. (gray) + Otsu             23.1%  47.1%   5.09  0.516  0.842  0.640    284
+E. Background diff. (gray) + Triangle          8.5%  14.2%   9.02  0.424  0.957  0.587    290
+F. Background diff. (Lab) + Otsu              22.3%  46.0%   5.37  0.537  0.920  0.678    317
+G. Background diff. (Lab) + Triangle           9.4%  17.1%   9.22  0.431  0.987  0.600    311
+H. Background diff. (Lab) + MAD k=6           13.5%  21.9%  11.41  0.376  0.978  0.543    323
+I. G + shape filter (circ>=0.5, A<=5%)        12.5%  22.9%   6.84  0.502  0.981  0.664    312
+J. G + shape filter (circ>=0.6, A<=5%)        14.6%  28.3%   5.49  0.554  0.976  0.706    318
+K. I without watershed                        32.7%  64.8%   1.48  0.821  0.928  0.871    270
+L. I + border clearing                        44.6%  64.8%   1.52  0.817  0.978  0.891    312
+M. L + watershed only if circ>=0.35           50.0%  70.4%   1.17  0.863  0.968  0.912    537
+N. M + drop crumbs < 0.25 x median            66.0%  83.5%   0.69  0.925  0.966  0.945    536
+O. N with circ>=0.6                           67.3%  85.0%   0.62  0.938  0.961  0.949    531
+P. N with circ>=0.4                           64.8%  82.3%   0.74  0.918  0.969  0.943    527
+Q. N with Otsu threshold                      59.6%  81.9%   0.86  0.949  0.887  0.917    517
+R. N with gray image (no color)               55.0%  75.8%   1.02  0.867  0.910  0.888    493
+S. N with background window 0.15              69.0%  86.9%   0.65  0.933  0.970  0.951    534
+T. N with background window 0.35              62.3%  84.0%   0.69  0.933  0.955  0.944    526
+U. N without watershed                        62.7%  84.6%   0.70  0.945  0.926  0.936    475
+V. N + window 0.15 + circ>=0.6 [FINAL]        70.0%  87.9%   0.58  0.944  0.963  0.954    520
+X. V without watershed                        64.4%  85.4%   0.64  0.975  0.926  0.950    484
+W. N + window 0.20 + circ>=0.6                68.1%  87.3%   0.62  0.938  0.961  0.950    527
 
-Đã lưu: outputs\experiment_hf_coins_dev.json
+Saved: outputs\experiment_hf_coins_dev.json

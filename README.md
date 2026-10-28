@@ -1,86 +1,86 @@
-# IMP302m – Đếm và phân loại kích thước vật thể bằng xử lý ảnh truyền thống
+# IMP302m – Object Counting and Size Classification with Classical Image Processing
 
-Đồ án môn **IMP302m – Image and Video Processing**, Đại học FPT.
+Course project for **IMP302m – Image and Video Processing**, FPT University.
 
-Hệ thống tách các vật thể rời rạc (đồng xu) khỏi nền tĩnh, đếm số lượng, đo hình học và phân loại **Large / Small**.
-Pipeline **không cần huấn luyện**, chỉ dùng xử lý ảnh cổ điển. Các thuật toán lõi được **tự cài đặt bằng NumPy** và đã kiểm chứng khớp với OpenCV.
+The system separates discrete objects (coins) from a static background, counts them, measures their geometry and classifies them as **Large / Small**.
+The pipeline is **training-free** and uses only classical image processing. The core algorithms are **implemented from scratch in NumPy** and verified to match OpenCV.
 
-**Nhóm thực hiện**
+**Team**
 
-| Thành viên | Email |
+| Member | Email |
 |---|---|
 | Ngô Quang Huy | ngoquanghuy2k5@gmail.com |
 | Nguyễn Đức Mạnh | Manhndse180326@fpt.edu.vn |
 | Hoàng Văn Anh | anhhvse180142@fpt.edu.vn |
 
-Báo cáo IEEE (tiếng Anh): [`report/main.tex`](report/main.tex). Xem cách biên dịch trong [`report/README.md`](report/README.md).
+IEEE-format report: [`report/main.tex`](report/main.tex). See [`report/README.md`](report/README.md) for how to compile it.
 
 ---
 
-## Kết quả chính
+## Main results
 
-### 4 kịch bản ảnh giả lập (có mặt nạ chuẩn đến từng pixel)
+### 4 synthetic cases (pixel-exact ground-truth masks)
 
-| Kịch bản | Thách thức | Đếm | Large / Small | IoU mặt nạ |
+| Case | Challenge | Count | Large / Small | Mask IoU |
 |---|---|---|---|---|
-| Case 1 – Ideal | Nền sáng đều, vật tách rời | 6 / 6 | 3 / 3 ✓ | 0.972 |
-| Case 2 – Low contrast | Mức xám bị nén vào [30, 100] | 6 / 6 | 3 / 3 ✓ | 0.971 |
-| Case 3 – Noise & glare | Nhiễu muối tiêu, vết lóa | 6 / 6 | 3 / 3 ✓ | 0.961 |
-| Case 4 – Overlapping | Hai vật chồng lên nhau | 6 / 6 | 3 / 3 ✓ | 0.972 |
+| Case 1 – Ideal | Uniform bright background, separated objects | 6 / 6 | 3 / 3 ✓ | 0.972 |
+| Case 2 – Low contrast | Gray levels squeezed into [30, 100] | 6 / 6 | 3 / 3 ✓ | 0.971 |
+| Case 3 – Noise & glare | Salt-and-pepper noise, glare spots | 6 / 6 | 3 / 3 ✓ | 0.961 |
+| Case 4 – Overlapping | Two objects overlapping | 6 / 6 | 3 / 3 ✓ | 0.972 |
 
-### 4 kịch bản ảnh thật (480 ảnh test, 3.386 đồng xu)
+### 4 real-image cases (480 test images, 3,386 coins)
 
-Ảnh lấy từ bộ Roboflow 100 *coins*. Mỗi ảnh được xếp vào một kịch bản chỉ dựa trên nhãn chuẩn và thống kê của ảnh (`tools/real_cases.py`), không dùng kết quả thuật toán.
+The photos come from the Roboflow 100 *coins* dataset. Each image is assigned to a case using only its ground-truth labels and image statistics (`tools/real_cases.py`), never the algorithm output.
 
-| Kịch bản | Số ảnh | Gốc (A): đếm đúng / F1 | **Chốt (V): đếm đúng / F1** |
+| Case | Images | Baseline (A): exact count / F1 | **Final (V): exact count / F1** |
 |---|---|---|---|
 | R1 – Ideal | 232 | 12.9% / 0.676 | **84.1% / 0.977** |
 | R2 – Low contrast | 88 | 5.7% / 0.181 | **52.3% / 0.906** |
 | R3 – Textured background | 132 | 19.7% / 0.226 | **50.8% / 0.918** |
 | R4 – Touching coins | 28 | 3.6% / 0.351 | **21.4% / 0.805** |
-| **Tổng** | **480** | 12.9% / 0.450 | **65.4% / 0.940** |
+| **All** | **480** | 12.9% / 0.450 | **65.4% / 0.940** |
 
-Trên toàn tập test, cấu hình chốt V đạt:
-- đếm lệch tối đa ±1 ở 84.2% số ảnh;
-- sai số đếm trung bình (MAE) 0.77 xu/ảnh;
-- Precision 0.921, Recall 0.959.
+On the whole test split, the final configuration V reaches:
+- a count within ±1 on 84.2% of the images;
+- a mean absolute counting error (MAE) of 0.77 coins per image;
+- Precision 0.921 and Recall 0.959.
 
-Tốc độ khoảng **65 ms/ảnh** 640×640 với OpenCV, khoảng 197 ms/ảnh với bản NumPy tự cài.
-Mọi tham số được chọn trên tập **dev**, tập **test** chỉ chạy một lần.
+It runs at about **65 ms per 640×640 image** with OpenCV, or about 197 ms with the from-scratch NumPy version.
+All parameters were selected on the **dev** split; the **test** split was run only once.
 
 ---
 
 ## Pipeline
 
 ```
-Ảnh màu ─► GĐ1 Tiền xử lý ─► GĐ2 Phân đoạn ─► GĐ3 Gán nhãn & đặc trưng ─► GĐ4 Phân loại
-           resize, Gray,      Otsu / K-Means,    2 lượt quét + Union-Find,    Otsu 1-D trên diện tích
-           FSHS, Median,      Opening, Closing,  lọc A_min, Watershed,        → Large / Small
-           Gaussian           lấp lỗ             diện tích, chu vi, ...
+Color image ─► Stage 1 Preprocessing ─► Stage 2 Segmentation ─► Stage 3 Labeling & features ─► Stage 4 Classification
+               resize, gray,            Otsu / K-Means,          two-pass + union-find,         1-D Otsu on areas
+               FSHS, median,            opening, closing,        A_min filter, watershed,       → Large / Small
+               Gaussian                 hole filling             area, perimeter, ...
 ```
 
-**Nhánh ảnh thật** (`--preset real`) thay GĐ2 bằng phương pháp phát hiện thay đổi:
-1. Ước lượng nền B bằng lọc trung vị cửa sổ lớn.
-2. Tính ảnh khác biệt D = ‖I − B‖ trong không gian màu Lab, rồi phân ngưỡng bằng Triangle.
-3. Bỏ các vùng chạm biên ảnh.
-4. Tách vật dính bằng Watershed, chỉ áp dụng cho vùng đủ tròn.
-5. Lọc theo hình dạng và diện tích.
+**Real-image branch** (`--preset real`) replaces Stage 2 with a change-detection approach:
+1. Estimate the background B with a large-window median filter.
+2. Compute the difference image D = ‖I − B‖ in Lab color space and threshold it with the Triangle method.
+3. Remove regions touching the image border.
+4. Split touching objects with watershed, applied only to sufficiently round regions.
+5. Filter regions by shape and area.
 
-**Kiểm chứng phần tự cài đặt** (`tools/verify_impl.py`, trên ảnh Case 3):
+**Verification of the from-scratch implementations** (`tools/verify_impl.py`, on the Case 3 image):
 
-| Thuật toán | Kết quả so với OpenCV |
+| Algorithm | Result compared with OpenCV |
 |---|---|
-| Lọc trung vị 5×5 | khác biệt tối đa = 0 |
-| Lọc Gaussian 5×5 | khác biệt tối đa = 1 mức xám |
-| Ngưỡng Otsu | cùng T* = 186 |
-| Erosion, Dilation | trùng khớp hoàn toàn |
-| Gán nhãn 4 và 8 liên thông | cùng 35 vùng, cùng phân hoạch |
+| 5×5 median filter | max difference = 0 |
+| 5×5 Gaussian filter | max difference = 1 gray level |
+| Otsu threshold | same T* = 186 |
+| Erosion, dilation | identical |
+| 4- and 8-connected labeling | same 35 regions, same partition |
 
 ---
 
-## Cài đặt
+## Installation
 
-Cần Python ≥ 3.10.
+Requires Python ≥ 3.10.
 
 ```powershell
 # Windows (PowerShell)
@@ -94,153 +94,153 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Các lệnh bên dưới viết cho Windows. Trên Linux/macOS, thay `.\.venv\Scripts\python.exe` bằng `python` và đổi `\` thành `/`.
+The commands below are written for Windows. On Linux/macOS, replace `.\.venv\Scripts\python.exe` with `python` and `\` with `/`.
 
-## Chạy nhanh
+## Quick start
 
 ```powershell
-# Ảnh giả lập 4 kịch bản (đã có sẵn trong repo; lệnh này để sinh lại)
+# 4 synthetic cases (already in the repository; this re-creates them)
 .\.venv\Scripts\python.exe tools\generate_synthetic.py
 
-# Chạy pipeline trên cả thư mục: tự đọc ground_truth.json và in bảng đánh giá
+# Run the pipeline on a folder: reads ground_truth.json automatically and prints an evaluation table
 .\.venv\Scripts\python.exe main.py data\synthetic --out outputs\synthetic
 
-# Ảnh thật: cấu hình chốt V trên tập test
+# Real photos: final configuration V on the test split
 .\.venv\Scripts\python.exe main.py data\real\hf_coins --preset real --subset test --save minimal --backend opencv --out outputs\real_test
 
-# Một ảnh bất kỳ
-.\.venv\Scripts\python.exe main.py duong_dan\anh.jpg --out outputs\anh_cua_toi
+# Any single image
+.\.venv\Scripts\python.exe main.py path\to\image.jpg --out outputs\my_image
 ```
 
-Tùy chọn thường dùng (xem đầy đủ: `python main.py -h`):
+Common options (full list: `python main.py -h`):
 
-| Tùy chọn | Ý nghĩa |
+| Option | Meaning |
 |---|---|
-| `--method otsu\|kmeans\|bgsub` | Thuật toán phân đoạn |
-| `--preset real` | Cấu hình chốt V cho ảnh thật |
-| `--classify otsu\|mean\|gap` | Cách chọn ngưỡng diện tích Large/Small |
-| `--area-threshold N` | Dùng ngưỡng diện tích cố định (px) |
-| `--backend numpy\|opencv` | Dùng bản tự cài hay OpenCV (kết quả như nhau, OpenCV nhanh hơn) |
-| `--no-split`, `--no-fill`, `--flatten` | Tắt Watershed / tắt lấp lỗ / bật san phẳng ánh sáng |
-| `--save all\|minimal\|none` | Lượng hình kết quả được lưu |
-| `--subset dev\|test`, `--limit N` | Chạy tập con |
+| `--method otsu\|kmeans\|bgsub` | Segmentation algorithm |
+| `--preset real` | Final configuration V for real photos |
+| `--classify otsu\|mean\|gap` | How the Large/Small area threshold is chosen |
+| `--area-threshold N` | Use a fixed area threshold (px) |
+| `--backend numpy\|opencv` | Own implementations or OpenCV (same results, OpenCV is faster) |
+| `--no-split`, `--no-fill`, `--flatten` | Disable watershed / disable hole filling / enable illumination flattening |
+| `--save all\|minimal\|none` | How many output figures are saved |
+| `--subset dev\|test`, `--limit N` | Run on a subset |
 
-## Tái lập toàn bộ thí nghiệm và hình trong báo cáo
+## Reproducing all experiments and report figures
 
 ```powershell
-# 1. Tải ảnh thật (~56 MB, không có trong repo) rồi lọc và chia dev/test.
-#    Repo đã có sẵn data\real\hf_coins, chỉ cần bước này nếu muốn tạo lại từ đầu.
+# 1. Download the real photos (~56 MB, not in the repository), then filter them and split dev/test.
+#    data\real\hf_coins is already in the repository; this step is only needed to rebuild it from scratch.
 New-Item -ItemType Directory -Force data\downloads\hf_coins
 curl.exe -L -o data\downloads\hf_coins\test.parquet https://huggingface.co/datasets/Francesco/coins-1apki/resolve/main/data/test-00000-of-00001-83ed470261ddf492.parquet
 .\.venv\Scripts\python.exe tools\import_hf_coins.py
 
-# 2. Xếp ảnh thật vào các kịch bản R1–R4
+# 2. Assign the real photos to cases R1–R4
 .\.venv\Scripts\python.exe tools\real_cases.py
 
-# 3. So sánh các cấu hình: chọn trên dev, kiểm tra trên test
+# 3. Compare configurations: select on dev, confirm on test
 .\.venv\Scripts\python.exe tools\experiment_real.py data\real\hf_coins dev
 .\.venv\Scripts\python.exe tools\experiment_real.py data\real\hf_coins test A,C,G,N,V,X
 
-# 4. Kiểm chứng thuật toán tự cài so với OpenCV
+# 4. Verify the own implementations against OpenCV
 .\.venv\Scripts\python.exe tools\verify_impl.py
 
-# 5. Sinh lại toàn bộ hình, biểu đồ và số liệu của báo cáo (~5 phút)
+# 5. Regenerate every figure, chart and number of the report (~5 minutes)
 .\.venv\Scripts\python.exe tools\make_report_figures.py
 
-# 6. Đóng gói báo cáo để tải lên Overleaf
+# 6. Pack the report for Overleaf
 .\.venv\Scripts\python.exe tools\make_overleaf_zip.py
 ```
 
 ---
 
-## Cấu trúc thư mục
+## Repository layout
 
 ```
-ipm/                    Thư viện xử lý ảnh
-  config.py             Toàn bộ tham số (dataclass Config)
-  preprocess.py         GĐ1: resize NN, RGB→Gray, histogram, AOD, FSHS, Median, Gaussian, trừ nền
-  segmentation.py       GĐ2: Otsu, K-Means k=2, Triangle, MAD, tự nhận nền sáng/tối
-  morphology.py         GĐ2: Erosion, Dilation, Opening, Closing, lấp lỗ
-  labeling.py           GĐ3: gán nhãn 2 lượt quét + Union-Find, lọc A_min, bỏ vùng chạm biên
-  split.py              GĐ3: Distance Transform + Watershed tách vật dính
-  features.py           GĐ3: diện tích, trọng tâm, chu vi, đường kính, hướng, độ tròn, độ đặc
-  classify.py           GĐ4: ngưỡng diện tích Large/Small
-  pipeline.py           Điều phối các giai đoạn, đo thời gian
-  evaluate.py           So với ground truth: đếm, P/R/F1, IoU
-  visualize.py          Xuất hình kết quả
-main.py                 Giao diện dòng lệnh
+ipm/                    Image-processing library
+  config.py             All parameters (Config dataclass)
+  preprocess.py         Stage 1: NN resize, RGB→gray, histogram, AOD, FSHS, median, Gaussian, background difference
+  segmentation.py       Stage 2: Otsu, K-Means k=2, Triangle, MAD, bright/dark background detection
+  morphology.py         Stage 2: erosion, dilation, opening, closing, hole filling
+  labeling.py           Stage 3: two-pass labeling + union-find, A_min filter, border clearing
+  split.py              Stage 3: distance transform + watershed for touching objects
+  features.py           Stage 3: area, centroid, perimeter, diameter, orientation, circularity, solidity
+  classify.py           Stage 4: Large/Small area threshold
+  pipeline.py           Runs the stages and times them
+  evaluate.py           Comparison with ground truth: count, P/R/F1, IoU
+  visualize.py          Output figures
+main.py                 Command-line interface
 tools/
-  generate_synthetic.py Sinh 4 kịch bản giả lập kèm mặt nạ chuẩn
-  import_hf_coins.py    Lọc bộ ảnh thật, chia dev/test
-  real_cases.py         Xếp ảnh thật vào R1–R4
-  experiment_real.py    Bảng so sánh các cấu hình (ablation)
-  verify_impl.py        So sánh bản tự cài với OpenCV
-  make_report_figures.py Sinh hình và biểu đồ cho báo cáo
-  make_overleaf_zip.py  Đóng gói main.tex + figures/ để tải lên Overleaf
-  fetch_public.py       Lưu ảnh skimage.data.coins()
+  generate_synthetic.py  Generates the 4 synthetic cases with ground-truth masks
+  import_hf_coins.py     Filters the real dataset and splits dev/test
+  real_cases.py          Assigns real photos to R1–R4
+  experiment_real.py     Configuration comparison table (ablation)
+  verify_impl.py         Compares own implementations with OpenCV
+  make_report_figures.py Generates the report figures and charts
+  make_overleaf_zip.py   Packs main.tex + figures/ for Overleaf
+  fetch_public.py        Saves skimage.data.coins()
 data/
-  synthetic/            4 ảnh giả lập + ground_truth.json + gt/ (mặt nạ)
-  real/hf_coins/        960 ảnh thật + ground_truth.json (khung bao) + split.json (dev/test)
-  public/               Ảnh skimage coins
-outputs/                Kết quả chạy mẫu (xem bên dưới)
+  synthetic/            4 synthetic images + ground_truth.json + gt/ (masks)
+  real/hf_coins/        960 real photos + ground_truth.json (boxes) + split.json (dev/test)
+  public/               skimage coins image
+outputs/                Sample results (see below)
 report/
-  main.tex              Báo cáo IEEE
-  figures/              12 hình và biểu đồ
-  data/                 Số liệu gốc của mọi bảng và biểu đồ
+  main.tex              IEEE report
+  figures/              12 figures and charts
+  data/                 Raw numbers behind every table and chart
 ```
 
-### Kết quả đầu ra cho mỗi ảnh (`outputs/<thư mục>/<tên ảnh>/`)
+### Outputs per image (`outputs/<folder>/<image name>/`)
 
-| File | Nội dung |
+| File | Content |
 |---|---|
-| `00_pipeline_overview.png` | Các bước của pipeline trên một hình |
-| `01_histogram_fshs.png`, `01b_fshs_vs_threshold.png` | Histogram trước/sau FSHS; ngưỡng cố định so với Otsu |
-| `02_mask_raw.png`, `02_mask_clean.png`, `02b_morphology_steps.png` | Mặt nạ nhị phân và từng bước hình thái học |
-| `02c_otsu_vs_kmeans.png` | So sánh Otsu và K-Means |
-| `03_label_map.png` | Bản đồ nhãn |
-| `04_detection.png` | Khung bao, trọng tâm, số thứ tự, lớp Large/Small |
-| `05_features.csv` | Bảng đặc trưng của từng vật thể |
-| `summary.json` | Tham số, thời gian, kết quả |
+| `00_pipeline_overview.png` | All pipeline steps in one figure |
+| `01_histogram_fshs.png`, `01b_fshs_vs_threshold.png` | Histograms before/after FSHS; fixed threshold vs Otsu |
+| `02_mask_raw.png`, `02_mask_clean.png`, `02b_morphology_steps.png` | Binary masks and each morphology step |
+| `02c_otsu_vs_kmeans.png` | Otsu vs K-Means |
+| `03_label_map.png` | Label map |
+| `04_detection.png` | Bounding boxes, centroids, IDs, Large/Small class |
+| `05_features.csv` | Feature table of every object |
+| `summary.json` | Parameters, timings, results |
 
-Mỗi thư mục cũng có `summary.csv` tổng hợp nhiều ảnh. Các thư mục có sẵn trong repo:
-- `outputs/synthetic/`: kết quả 4 kịch bản giả lập.
-- `outputs/case4_nosplit/`: Case 4 khi tắt Watershed.
-- `outputs/real_showcase/`: 8 ảnh thật mẫu.
-- `outputs/experiment_*.txt|json`: bảng so sánh cấu hình trên dev và test.
+Each folder also has a `summary.csv` that collects all its images. Folders included in the repository:
+- `outputs/synthetic/`: results on the 4 synthetic cases.
+- `outputs/case4_nosplit/`: Case 4 with watershed disabled.
+- `outputs/real_showcase/`: 8 sample real photos.
+- `outputs/experiment_*.txt|json`: configuration comparison tables on dev and test.
 
 ---
 
-## Dữ liệu
+## Data
 
-**Ảnh giả lập** (`data/synthetic/`): sinh bằng `tools/generate_synthetic.py`, có ground truth tuyệt đối. Mặt nạ chuẩn đến từng pixel nên tính được IoU.
+**Synthetic images** (`data/synthetic/`): generated by `tools/generate_synthetic.py` with exact ground truth. The masks are pixel-exact, so IoU can be computed.
 
-**Ảnh thật** (`data/real/hf_coins/`): bộ [coins-1apki](https://universe.roboflow.com/object-detection/coins-1apki) của Roboflow 100, [bản Hugging Face](https://huggingface.co/datasets/Francesco/coins-1apki), giấy phép **CC BY 4.0**.
-- Lấy từ split *test* của bộ gốc, giữ lại 960 ảnh chỉ chứa đồng xu, mỗi ảnh 3–30 xu.
-- Chia ngẫu nhiên dev 480 / test 480 với seed 2026.
-- Nhãn chỉ gồm số lượng và khung bao, **không có nhãn lớn/nhỏ**. Vì vậy trên ảnh thật chỉ đánh giá được đếm và định vị.
+**Real photos** (`data/real/hf_coins/`): the [coins-1apki](https://universe.roboflow.com/object-detection/coins-1apki) dataset from Roboflow 100 ([Hugging Face copy](https://huggingface.co/datasets/Francesco/coins-1apki)), license **CC BY 4.0**.
+- Taken from the *test* split of the original dataset; 960 images that contain only coins, 3–30 coins each, are kept.
+- Randomly split into dev 480 / test 480 with seed 2026.
+- Labels contain only the count and bounding boxes, **no Large/Small labels**. On real photos, only counting and localization can therefore be evaluated.
 
-**Ảnh tự chụp** (khuyến nghị, để đánh giá phân loại Large/Small trên ảnh thật):
-- Đặt ảnh vào `data/raw/`, kèm file `data/raw/ground_truth.json` theo mẫu `{"anh_01.jpg": {"count": 6, "large": 3, "small": 3}}`.
-- Đặt điện thoại song song mặt bàn, cách 30–40 cm, tắt flash.
-- Dùng nền giấy trắng hoặc vải đen.
-- Chọn 2 nhóm vật có diện tích chênh nhau ≥ 1.3 lần, ví dụ xu 5000đ và 500đ.
-- Chụp đủ 4 kịch bản:
+**Self-captured photos** (recommended, to evaluate Large/Small classification on real images):
+- Put the images in `data/raw/` with a `data/raw/ground_truth.json` such as `{"img_01.jpg": {"count": 6, "large": 3, "small": 3}}`.
+- Hold the phone parallel to the table, 30–40 cm away, with the flash off.
+- Use white paper or black cloth as the background.
+- Choose 2 groups of objects whose areas differ by at least 1.3×, e.g. 5000 VND and 500 VND coins.
+- Capture all 4 cases:
 
-| Kịch bản | Cách tạo |
+| Case | How to create it |
 |---|---|
-| Case 1 – Ideal | Ánh sáng đều, vật cách nhau ≥ 1 cm |
-| Case 2 – Low contrast | Tắt đèn trần hoặc giảm phơi sáng (EV −2) |
-| Case 3 – Noise & glare | Rắc vụn giấy lên nền, rọi đèn pin xiên để tạo lóa |
-| Case 4 – Overlapping | Đặt 2–3 cặp vật sát hoặc gối lên nhau |
+| Case 1 – Ideal | Uniform lighting, objects at least 1 cm apart |
+| Case 2 – Low contrast | Turn off the ceiling light or lower the exposure (EV −2) |
+| Case 3 – Noise & glare | Sprinkle paper crumbs on the background, shine a flashlight at an angle to create glare |
+| Case 4 – Overlapping | Place 2–3 pairs of objects touching or overlapping |
 
 ---
 
-## Giới hạn đã biết
+## Known limitations
 
-- Đồng xu dính thành cụm từ 3 xu trở lên, hoặc dính vào bóng đổ, thường không tách được. Đây là lý do kịch bản R4 chỉ đạt 21.4% đếm đúng.
-- Nền có vân mạnh (gỗ, thảm) gây ra một phần dương tính giả.
-- Phân loại Large/Small dựa trên diện tích pixel nên cần ảnh chụp cùng độ cao và cùng góc.
+- Clusters of 3 or more touching coins, or coins merged with a shadow, are often not split. This is why case R4 reaches only 21.4% exact counts.
+- Strongly textured backgrounds (wood, carpet) cause some false positives.
+- Large/Small classification relies on pixel area, so all photos must be taken from the same height and angle.
 
-## Trích dẫn dữ liệu
+## Data citation
 
 > Roboflow 100: *coins-1apki* dataset, Roboflow Universe, CC BY 4.0. https://universe.roboflow.com/object-detection/coins-1apki

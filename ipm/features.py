@@ -1,4 +1,4 @@
-"""Giai đoạn 3c – Trích xuất đặc trưng biên & vùng (Chương 10.1, 10.2, 11.1)."""
+"""Stage 3c – Boundary and region feature extraction (Lectures 10.1, 10.2, 11.1)."""
 from dataclasses import dataclass, asdict
 
 import cv2
@@ -8,20 +8,20 @@ import numpy as np
 @dataclass
 class ObjectFeatures:
     id: int
-    label: int              # Giá trị nhãn tương ứng trên bản đồ nhãn r(n1, n2)
-    cx: float               # Trọng tâm
+    label: int              # Corresponding value on the label map r(n1, n2)
+    cx: float               # Centroid
     cy: float
-    x: int                  # Khung bao (x, y, w, h)
+    x: int                  # Bounding box (x, y, w, h)
     y: int
     w: int
     h: int
     area: int               # A_m (px)
     perimeter: float        # L_m (px)
-    diameter: float         # Đường kính biên (px)
-    orientation: float      # Góc trục chính (độ)
+    diameter: float         # Boundary diameter (px)
+    orientation: float      # Major-axis orientation (degrees)
     circularity: float      # 4·pi·A / L^2
-    solidity: float         # A / A_bao_lồi
-    eq_diameter: float      # Đường kính tương đương sqrt(4A/pi)
+    solidity: float         # A / A_convex_hull
+    eq_diameter: float      # Equivalent diameter sqrt(4A/pi)
     cls: str = ""
 
     def to_dict(self):
@@ -29,7 +29,7 @@ class ObjectFeatures:
 
 
 def boundary_length(pts):
-    """L = sum ΔL, ΔL = [(x2-x1)^2 + (y2-y1)^2]^(1/2) dọc theo contour khép kín (Mục 10.1)."""
+    """L = sum ΔL, ΔL = [(x2-x1)^2 + (y2-y1)^2]^(1/2) along the closed contour (Section 10.1)."""
     if len(pts) < 2:
         return 0.0
     d = np.diff(np.vstack([pts, pts[:1]]), axis=0)
@@ -37,10 +37,10 @@ def boundary_length(pts):
 
 
 def boundary_diameter(hull_pts):
-    """Diameter(B) = max D(p_i, p_j). Hai điểm xa nhất luôn là đỉnh bao lồi nên chỉ xét bao lồi.
+    """Diameter(B) = max D(p_i, p_j). The farthest pair is always on the convex hull, so only hull points are checked.
 
-    Trả về (đường kính, góc trục chính theo độ). Dùng atan2 thay cho tan^-1(dy/dx)
-    để không chia cho 0 khi trục chính thẳng đứng. Trục y của ảnh hướng xuống dưới.
+    Returns (diameter, major-axis angle in degrees). atan2 is used instead of tan^-1(dy/dx)
+    to avoid dividing by zero for a vertical axis. The image y axis points down.
     """
     if len(hull_pts) < 2:
         return 0.0, 0.0
@@ -55,7 +55,7 @@ def boundary_diameter(hull_pts):
 
 
 def extract(labels, n):
-    """Tính vector đặc trưng cho từng vùng R_1..R_n; ID đánh từ trên xuống, trái sang phải."""
+    """Compute the feature vector of each region R_1..R_n; IDs run top to bottom, left to right."""
     ys, xs = np.nonzero(labels)
     l = labels[ys, xs]
     area = np.bincount(l, minlength=n + 1)

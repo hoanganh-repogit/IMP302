@@ -1,8 +1,8 @@
-"""Đóng gói report/main.tex + report/figures/ thành file zip để tải lên Overleaf.
+"""Pack report/main.tex + report/figures/ into a zip file for uploading to Overleaf.
 
-Dùng zipfile (đường dẫn dạng figures/xxx.png) vì Compress-Archive của Windows PowerShell 5.1
-ghi dấu '\\' trong tên file, Overleaf (Linux) không nhận ra thư mục.
-Chạy:  python tools/make_overleaf_zip.py   ->  report/IMP302m_report_overleaf.zip
+Uses zipfile (paths like figures/xxx.png) because Compress-Archive in Windows PowerShell 5.1
+writes backslashes into the entry names, which Overleaf (Linux) does not treat as folders.
+Run:  python tools/make_overleaf_zip.py   ->  report/IMP302m_report_overleaf.zip
 """
 import sys
 import zipfile
@@ -18,7 +18,7 @@ def main():
     with zipfile.ZipFile(OUT, "w", zipfile.ZIP_DEFLATED) as z:
         for f in files:
             z.write(f, f.relative_to(REPORT).as_posix())
-    print(f"Đã tạo {OUT} ({len(files)} file)")
+    print(f"Created {OUT} ({len(files)} files)")
 
 
 if __name__ == "__main__":

@@ -1,12 +1,12 @@
-"""Chia ảnh thật thành 4 "real case" tương ứng 4 kịch bản giả lập.
+"""Split the real photos into 4 "real cases" that mirror the 4 synthetic cases.
 
-Chỉ dùng nhãn chuẩn + thống kê ảnh (KHÔNG dùng kết quả thuật toán) để việc chia không thiên vị:
-    R4 touching       – có ít nhất một cặp xu (hộp chuẩn) chạm/chồng nhau
-    R3 textured       – độ nhám nền thuộc 30% cao nhất (vân gỗ, hạt thảm, vết bẩn)
-    R2 low contrast   – chênh lệch màu Lab xu–nền thuộc 30% thấp nhất
-    R1 ideal          – còn lại
-Thứ tự ưu tiên R4 > R3 > R2 > R1 để mỗi ảnh thuộc đúng một case. Ngưỡng phân vị tính trên cả 960 ảnh.
-Chạy:  python tools/real_cases.py   ->  report/data/real_cases.csv
+Only ground-truth labels + image statistics are used (NOT the algorithm output), so the split is unbiased:
+    R4 touching       – at least one pair of coins (GT boxes) touch or overlap
+    R3 textured       – background roughness in the top 30% (wood grain, carpet fibers, stains)
+    R2 low contrast   – Lab color difference coin–background in the bottom 30%
+    R1 ideal          – everything else
+Priority R4 > R3 > R2 > R1 so each image belongs to exactly one case. Percentile thresholds use all 960 images.
+Run:  python tools/real_cases.py   ->  report/data/real_cases.csv
 """
 import csv
 import json
@@ -23,7 +23,7 @@ CASES = {1: "R1 Ideal", 2: "R2 Low contrast", 3: "R3 Textured background", 4: "R
 
 
 def touching(boxes, gap=3.0):
-    """Xấp xỉ mỗi xu bằng hình tròn nội tiếp hộp; chạm nhau nếu khoảng cách tâm <= r1 + r2 + gap."""
+    """Approximate each coin by the circle inscribed in its box; two coins touch if center distance <= r1 + r2 + gap."""
     c = np.array([[x + w / 2, y + h / 2, (w + h) / 4] for x, y, w, h in boxes])
     for i in range(len(c)):
         for j in range(i + 1, len(c)):
@@ -42,9 +42,9 @@ def attributes(img, boxes):
     near = cv2.dilate(coin, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15)))
     bg = near == 0
     highpass = gray - cv2.GaussianBlur(gray, (0, 0), 2.0)
-    texture = float(np.std(highpass[bg]))                     # độ nhám nền
+    texture = float(np.std(highpass[bg]))                     # background roughness
     contrasts = []
-    for x, y, bw, bh in boxes:                                # chênh lệch màu xu – vành nền quanh xu
+    for x, y, bw, bh in boxes:                                # color difference coin – background ring around it
         m_in = np.zeros((h, w), np.uint8)
         cv2.ellipse(m_in, (int(x + bw / 2), int(y + bh / 2)), (max(1, int(bw / 2.6)), max(1, int(bh / 2.6))),
                     0, 0, 360, 1, -1)
@@ -77,11 +77,11 @@ def main():
         wr = csv.DictWriter(f, fieldnames=list(rows[0]))
         wr.writeheader()
         wr.writerows(rows)
-    print(f"Ngưỡng: texture >= {t_hi:.2f}, contrast <= {c_lo:.2f}")
+    print(f"Thresholds: texture >= {t_hi:.2f}, contrast <= {c_lo:.2f}")
     for k, v in CASES.items():
         n_all = sum(r["case"] == k for r in rows)
         n_test = sum(r["case"] == k and r["split"] == "test" for r in rows)
-        print(f"  {v:<24} tổng {n_all:>4}   test {n_test:>4}")
+        print(f"  {v:<24} total {n_all:>4}   test {n_test:>4}")
 
 
 if __name__ == "__main__":

@@ -1,11 +1,11 @@
-Ảnh: data/synthetic/case3_noisy_glare.jpg  (800x534)
+Image: data/synthetic/case3_noisy_glare.jpg  (800x534)
 
-Thuật toán                Kết quả so sánh                                Tự cài (ms)  OpenCV (ms)
+Algorithm                 Comparison                                        Own (ms)  OpenCV (ms)
 -------------------------------------------------------------------------------------------------
-Lọc trung vị 5x5          khác biệt tối đa = 0                                 98.88         0.50
-Lọc Gaussian 5x5          khác biệt tối đa = 1                                 20.88         0.13
-Ngưỡng Otsu               T* tự cài = 186, OpenCV = 186                         1.46         1.65
-Phép Co (Erosion)         trùng khớp = True                                     0.64         0.10
-Phép Giãn (Dilation)      trùng khớp = True                                     0.55         0.10
-Gán nhãn 4-liên thông     số vùng 35 / 35, cùng phân hoạch = True              22.28         1.00
-Gán nhãn 8-liên thông     số vùng 35 / 35, cùng phân hoạch = True              27.43         0.80
+Median filter 5x5         max difference = 0                                   98.88         0.50
+Gaussian filter 5x5       max difference = 1                                   20.88         0.13
+Otsu threshold            T* own = 186, OpenCV = 186                            1.46         1.65
+Erosion                   identical = True                                      0.64         0.10
+Dilation                  identical = True                                      0.55         0.10
+4-connected labeling      regions 35 / 35, same partition = True               22.28         1.00
+8-connected labeling      regions 35 / 35, same partition = True               27.43         0.80

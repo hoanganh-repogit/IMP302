@@ -1,4 +1,4 @@
-"""Đánh giá định lượng so với nhãn thật (ground truth)."""
+"""Quantitative evaluation against the ground truth."""
 import json
 from pathlib import Path
 
@@ -17,10 +17,11 @@ def load_ground_truth(path):
 
 
 def match_boxes(res, boxes):
-    """Ghép 1-1 vật thể dự đoán với khung bao thật (tọa độ ảnh gốc, COCO [x, y, w, h]).
+    """One-to-one matching of predicted objects to ground-truth boxes (original image coords, COCO [x, y, w, h]).
 
-    Một dự đoán là đúng (TP) khi trọng tâm của nó nằm trong khung thật chưa được ghép;
-    ưu tiên cặp có trọng tâm gần tâm khung nhất. Dư -> FP (đếm thừa), thiếu -> FN (đếm sót).
+    A prediction is correct (TP) when its centroid lies inside a not-yet-matched GT box;
+    pairs whose centroid is closest to the box center are matched first. Extra -> FP (over-count),
+    missing -> FN (under-count).
     """
     s = res.scale
     gt = np.array(boxes, dtype=np.float64).reshape(-1, 4) * s
@@ -40,7 +41,7 @@ def match_boxes(res, boxes):
 
 
 def evaluate_image(res, gt_entry, gt_dir=None):
-    """So sánh số đếm, số Large/Small và (nếu có mặt nạ thật) IoU của mặt nạ phân đoạn."""
+    """Compare the count, the Large/Small numbers and (if a GT mask exists) the IoU of the segmentation mask."""
     ci = res.class_info
     out = {
         "gt_count": gt_entry.get("count"),

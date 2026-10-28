@@ -1,18 +1,18 @@
-"""Giai đoạn 3a – Gán nhãn vùng liên thông 2 lượt quét (Region Labeling – Chương 1.2)."""
+"""Stage 3a – Two-pass connected-component labeling (Region Labeling – Lecture 1.2)."""
 import cv2
 import numpy as np
 
 
 def two_pass_labeling(mask, connectivity=4):
-    """Thuật toán 2 lượt quét với Bảng tương đương (cài đặt bằng Union-Find).
+    """Two-pass algorithm with an equivalence table (implemented with union-find).
 
-    Lượt 1: quét trái->phải, trên->dưới. Tại pixel vật thể, xét các lân cận đã đi qua
-            (trái, trên; thêm trên-trái, trên-phải nếu 8-liên thông):
-            - không có lân cận nào mang nhãn  -> cấp nhãn mới k, k <- k + 1
-            - có lân cận mang nhãn            -> nhận nhãn nhỏ nhất, các nhãn khác
-                                                 được ghi vào bảng tương đương.
-    Lượt 2: thay mỗi nhãn bằng nhãn đại diện của lớp tương đương, đánh số lại 1..N.
-    Chỉ duyệt các pixel vật thể (np.flatnonzero giữ đúng thứ tự quét mành).
+    Pass 1: scan left->right, top->bottom. At an object pixel, look at the already visited
+            neighbors (left, up; plus up-left and up-right for 8-connectivity):
+            - no labeled neighbor  -> assign a new label k, k <- k + 1
+            - labeled neighbors    -> take the smallest label; the other labels are
+                                      recorded in the equivalence table.
+    Pass 2: replace every label by the representative of its equivalence class, renumber 1..N.
+    Only object pixels are visited (np.flatnonzero keeps raster-scan order).
     """
     h, w = mask.shape
     lab = [0] * (h * w)
@@ -59,7 +59,7 @@ def two_pass_labeling(mask, connectivity=4):
                 if n != m:
                     union(m, n)
 
-    # Lượt 2: gốc của mỗi lớp là nhãn nhỏ nhất -> luôn được đánh số trước các thành viên
+    # Pass 2: the root of each class is its smallest label -> it is always numbered before its members
     lut = np.zeros(next_label, dtype=np.int32)
     n_final = 0
     for l in range(1, next_label):
@@ -82,13 +82,13 @@ def label(mask, connectivity=4, backend="numpy"):
 
 
 def count_components(mask, connectivity=4):
-    """Đếm nhanh số vùng (chỉ dùng cho số liệu chẩn đoán, không nằm trong pipeline chính)."""
+    """Quick region count (diagnostic statistics only, not part of the main pipeline)."""
     n, _ = cv2.connectedComponents(mask.astype(np.uint8), connectivity=connectivity)
     return n - 1
 
 
 def remove_small(labels, a_min):
-    """Bỏ vùng có diện tích < A_min rồi đánh số lại liên tục 1..N_obj."""
+    """Drop regions with area < A_min and renumber them consecutively 1..N_obj."""
     areas = np.bincount(labels.ravel())
     keep = np.flatnonzero(areas >= a_min)
     keep = keep[keep > 0]
@@ -98,7 +98,7 @@ def remove_small(labels, a_min):
 
 
 def clear_border(labels):
-    """Xóa mọi vùng có pixel nằm trên viền ảnh, rồi đánh số lại."""
+    """Remove every region with a pixel on the image border, then renumber."""
     border = np.unique(np.concatenate([labels[0], labels[-1], labels[:, 0], labels[:, -1]]))
     out = labels.copy()
     out[np.isin(out, border[border > 0])] = 0
@@ -106,7 +106,7 @@ def clear_border(labels):
 
 
 def same_partition(a, b):
-    """Hai bản đồ nhãn có cùng cách chia vùng không (bỏ qua việc đánh số khác nhau)?"""
+    """Do two label maps define the same partition (ignoring different numbering)?"""
     if a.shape != b.shape or not np.array_equal(a > 0, b > 0):
         return False
     pairs = np.unique(np.stack([a.ravel(), b.ravel()], axis=1), axis=0)

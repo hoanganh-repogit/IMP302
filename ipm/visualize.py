@@ -1,4 +1,4 @@
-"""Xuất các hình ảnh & bảng phục vụ báo cáo."""
+"""Figures & tables for the report."""
 import csv
 import json
 from pathlib import Path
@@ -14,7 +14,7 @@ from . import segmentation as seg  # noqa: E402
 from .classify import LARGE, SMALL  # noqa: E402
 from .preprocess import histogram, save_image  # noqa: E402
 
-CLASS_COLORS = {LARGE: (40, 180, 40), SMALL: (0, 140, 255)}  # BGR: xanh lá / cam
+CLASS_COLORS = {LARGE: (40, 180, 40), SMALL: (0, 140, 255)}  # BGR: green / orange
 DEFAULT_COLOR = (160, 160, 160)
 
 
@@ -29,7 +29,7 @@ def iou(a, b):
 
 
 def colorize_labels(labels):
-    """Bản đồ nhãn giả màu: mỗi vùng một màu, nền đen."""
+    """Pseudo-color label map: one color per region, black background."""
     n = int(labels.max())
     rng = np.random.default_rng(7)
     lut = rng.integers(60, 256, size=(n + 1, 3), dtype=np.uint8)
@@ -75,7 +75,7 @@ def _hist_axis(ax, img, title, lines=(), log=False):
 
 
 def fig_histogram(res, path):
-    """Output 1: ảnh xám gốc / sau FSHS + histogram tương ứng kèm AOD."""
+    """Output 1: original / FSHS gray image + the corresponding histograms with AOD."""
     A, B = res.fshs_range
     T = res.seg_info["T"]
     fig, axs = plt.subplots(2, 2, figsize=(13, 8))
@@ -103,7 +103,7 @@ def fig_histogram(res, path):
 
 
 def fig_fshs_vs_threshold(res, path, fixed_T=128):
-    """Chứng minh: FSHS giúp NGƯỠNG CỐ ĐỊNH, còn Otsu bất biến với biến đổi tuyến tính."""
+    """Shows that FSHS helps a FIXED threshold, while Otsu is invariant to linear transforms."""
     bg = res.seg_info["background_bright"]
     T_raw, _ = seg.otsu_threshold(res.gray)
     T_fs, _ = seg.otsu_threshold(res.contrast)
@@ -124,7 +124,7 @@ def fig_fshs_vs_threshold(res, path, fixed_T=128):
 
 
 def fig_otsu_vs_kmeans(res, path):
-    """Đối sánh 2 nhánh phân đoạn trên cùng ảnh g_smooth."""
+    """Compares the 2 segmentation branches on the same g_smooth image."""
     m_o, i_o = seg.segment(res.smooth, res.cfg, "otsu")
     m_k, i_k = seg.segment(res.smooth, res.cfg, "kmeans")
     diff = np.zeros((*m_o.shape, 3), np.uint8)
@@ -147,7 +147,7 @@ def fig_otsu_vs_kmeans(res, path):
 
 
 def fig_morphology(res, path):
-    """Từng bước hậu xử lý mặt nạ – minh họa cho Case 3."""
+    """Mask post-processing step by step – illustration for Case 3."""
     st = res.stats
     imgs = [res.mask_raw, res.mask_open, res.mask_closed, res.mask_clean]
     titles = [f"After thresholding ({st['regions_raw']} regions)", "After opening (5x5 elliptical SE)",
@@ -175,7 +175,7 @@ def fig_overview(res, detect_bgr, path):
         (_rgb(detect_bgr), None, f"6. Result: {ci.get('n_large', 0)} Large, {ci.get('n_small', 0)} Small"),
     ]
     for ax, (im, cmap, tt) in zip(axs.ravel(), panels):
-        if cmap:  # ảnh xám & mặt nạ: cố định thang để ảnh một giá trị không bị hiển thị sai
+        if cmap:  # gray images & masks: fix the scale so a single-valued image is not displayed wrongly
             ax.imshow(im, cmap=cmap, vmin=0, vmax=im.max() if im.max() > 1 else 1)
         else:
             ax.imshow(im)
@@ -202,23 +202,23 @@ def write_features_csv(objects, path):
 def print_feature_table(objects, class_info):
     line = "=" * 104
     print(line)
-    print(f"{'ID':<4}| {'Tâm (cx, cy)':<14}| {'Khung (x, y, w, h)':<22}| {'A (px)':>8} | {'L (px)':>8} | "
-          f"{'D (px)':>7} | {'Độ tròn':>7} | {'Độ đặc':>6} | Lớp")
+    print(f"{'ID':<4}| {'Center (cx,cy)':<14}| {'Box (x, y, w, h)':<22}| {'A (px)':>8} | {'L (px)':>8} | "
+          f"{'D (px)':>7} | {'Circ.':>7} | {'Solid.':>6} | Class")
     print(line)
     for o in objects:
         print(f"#{o.id:<3}| ({o.cx:>5.0f},{o.cy:>5.0f}) | ({o.x:>4},{o.y:>4},{o.w:>4},{o.h:>4})  | {o.area:>8} | "
               f"{o.perimeter:>8.1f} | {o.diameter:>7.1f} | {o.circularity:>7.3f} | {o.solidity:>6.3f} | {o.cls}")
     print(line)
     T = class_info.get("threshold")
-    print(f"Ngưỡng diện tích T_area = {T} px ({class_info['method']})" if T is not None
-          else f"Ghi chú: {class_info.get('warning')}")
+    print(f"Area threshold T_area = {T} px ({class_info['method']})" if T is not None
+          else f"Note: {class_info.get('warning')}")
 
 
 def save_all(res, out_dir, level="all"):
-    """Ghi các sản phẩm đầu ra của một ảnh vào out_dir.
+    """Write all outputs of one image to out_dir.
 
-    level = "all": đầy đủ hình cho báo cáo; "minimal": chỉ ảnh kết quả + bảng + summary
-    (dùng khi chạy hàng trăm ảnh, vì vẽ hình matplotlib chiếm phần lớn thời gian).
+    level = "all": every figure for the report; "minimal": only the result image + table + summary
+    (used for hundreds of images, since matplotlib plotting dominates the run time).
     """
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)

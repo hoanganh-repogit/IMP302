@@ -1,8 +1,8 @@
-"""Giai đoạn 3b – Tách vật thể chạm nhau: Distance Transform + Watershed (Chương 9).
+"""Stage 3b – Splitting touching objects: distance transform + watershed (Lecture 9).
 
-Đây là lời giải cho hạn chế "Risk of Oversimplification" (Case 4): hai vật dính nhau
-tạo thành MỘT vùng liên thông. Vùng như vậy lõm ở chỗ tiếp xúc nên có độ đặc
-(solidity = A / A_bao_lồi) thấp; ta chỉ chạy Watershed trên những vùng bị nghi ngờ.
+This addresses the "Risk of Oversimplification" limitation (Case 4): two touching objects
+form ONE connected region. Such a region is concave at the contact point, so its solidity
+(A / A_convex_hull) is low; watershed is run only on these suspicious regions.
 """
 import cv2
 import numpy as np
@@ -10,7 +10,7 @@ from skimage.segmentation import watershed
 
 
 def _shape(region):
-    """(độ đặc A/A_hull, độ tròn 4·pi·A/L^2) của một vùng nhị phân."""
+    """(solidity A/A_hull, circularity 4·pi·A/L^2) of a binary region."""
     contours, _ = cv2.findContours(region, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     c = max(contours, key=cv2.contourArea)
     hull = cv2.convexHull(c)
@@ -22,7 +22,7 @@ def _shape(region):
 
 
 def _markers(dist):
-    """Đỉnh cục bộ của bản đồ khoảng cách = tâm của từng vật (mỗi đồng xu có 1 đỉnh)."""
+    """Local maxima of the distance map = object centers (one peak per coin)."""
     dmax = dist.max()
     k = max(3, int(0.5 * dmax)) | 1
     se = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k))
@@ -32,10 +32,10 @@ def _markers(dist):
 
 
 def split_touching(labels, n, solidity_thresh=0.94, min_circularity=0.0):
-    """Trả về (bản đồ nhãn mới, số vùng mới, danh sách các vùng đã bị tách).
+    """Return (new label map, new number of regions, list of the regions that were split).
 
-    Vùng quá kém tròn (dải mép bàn, vệt bóng dài) KHÔNG được tách: Watershed sẽ băm
-    chúng thành nhiều mảnh tròn giả; cứ để nguyên cho bộ lọc hình dạng phía sau loại bỏ.
+    Regions that are far from round (table-edge strips, long shadow streaks) are NOT split:
+    watershed would chop them into many fake round pieces; they are left for the shape filter.
     """
     out = labels.copy()
     next_id = n + 1

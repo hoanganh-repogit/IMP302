@@ -1,35 +1,35 @@
-"""Giai đoạn 1 – Thu nhận & tiền xử lý mức xám (Chương 1.1, 2.1, 2.2, 3, 7, 8)."""
+"""Stage 1 – Acquisition & gray-level preprocessing (Lectures 1.1, 2.1, 2.2, 3, 7, 8)."""
 from pathlib import Path
 
 import cv2
 import numpy as np
 
-K = 256  # Số mức xám sau lượng tử hóa 8-bit (D = 256)
+K = 256  # Number of gray levels after 8-bit quantization (D = 256)
 
 
 # ----------------------------------------------------------------------------
-# Đọc / ghi ảnh (hỗ trợ đường dẫn có dấu tiếng Việt trên Windows)
+# Image read / write (supports non-ASCII, e.g. Vietnamese, paths on Windows)
 # ----------------------------------------------------------------------------
 def load_image(path):
     data = np.fromfile(str(path), dtype=np.uint8)
     img = cv2.imdecode(data, cv2.IMREAD_COLOR)
     if img is None:
-        raise ValueError(f"Không đọc được ảnh: {path}")
+        raise ValueError(f"Cannot read image: {path}")
     return img
 
 
 def save_image(path, img):
     ok, buf = cv2.imencode(Path(path).suffix, img)
     if not ok:
-        raise ValueError(f"Không ghi được ảnh: {path}")
+        raise ValueError(f"Cannot write image: {path}")
     buf.tofile(str(path))
 
 
 # ----------------------------------------------------------------------------
-# 1.1 Biến đổi hình học & nội suy (Chương 1.1)
+# 1.1 Geometric transforms & interpolation (Lecture 1.1)
 # ----------------------------------------------------------------------------
 def nearest_neighbor_resize(img, out_h, out_w):
-    """Ánh xạ ngược + nội suy lân cận gần nhất: g(n) = f{INT[a1 + 0.5], INT[a2 + 0.5]}."""
+    """Inverse mapping + nearest-neighbor interpolation: g(n) = f{INT[a1 + 0.5], INT[a2 + 0.5]}."""
     in_h, in_w = img.shape[:2]
     a1 = np.arange(out_h) * (in_h / out_h)
     a2 = np.arange(out_w) * (in_w / out_w)
@@ -39,7 +39,7 @@ def nearest_neighbor_resize(img, out_h, out_w):
 
 
 def resize_to_width(img, width, method="area"):
-    """Trả về (ảnh, hệ số tỉ lệ s). Chỉ thu nhỏ, không phóng to."""
+    """Return (image, scale factor s). Only downscales, never upscales."""
     h, w = img.shape[:2]
     if not width or w <= width:
         return img.copy(), 1.0
@@ -51,7 +51,7 @@ def resize_to_width(img, width, method="area"):
 
 
 # ----------------------------------------------------------------------------
-# 1.2 Chuyển RGB -> đa mức xám (kênh chói Y, chuẩn BT.601)
+# 1.2 RGB -> gray-level conversion (luminance Y, BT.601)
 # ----------------------------------------------------------------------------
 def rgb_to_gray(bgr):
     b, g, r = (bgr[..., i].astype(np.float64) for i in range(3))
@@ -60,10 +60,10 @@ def rgb_to_gray(bgr):
 
 
 # ----------------------------------------------------------------------------
-# 1.3 Histogram, AOD, FSHS (Chương 1.1)
+# 1.3 Histogram, AOD, FSHS (Lecture 1.1)
 # ----------------------------------------------------------------------------
 def histogram(gray):
-    """H_f(k) = số pixel có mức xám k; sum_k H_f(k) = M x N."""
+    """H_f(k) = number of pixels with gray level k; sum_k H_f(k) = M x N."""
     return np.bincount(gray.ravel(), minlength=K).astype(np.int64)
 
 
@@ -76,9 +76,9 @@ def aod(gray):
 def fshs(gray, low_pct=0.0, high_pct=100.0):
     """Full-Scale Histogram Stretch: g = (K-1)/(B-A) * (f - A).
 
-    Với low_pct=0, high_pct=100 ta có đúng FSHS của giáo trình (A = min, B = max).
-    Lấy A, B theo phân vị giúp vài điểm ngoại lai (hạt bụi, vết lóa) không làm
-    B - A = 255 khiến phép kéo giãn mất tác dụng. Trả về (g, A, B).
+    With low_pct=0, high_pct=100 this is exactly the textbook FSHS (A = min, B = max).
+    Taking A, B as percentiles keeps a few outliers (dust specks, glare) from making
+    B - A = 255, which would cancel the stretch. Returns (g, A, B).
     """
     A = float(np.percentile(gray, low_pct))
     B = float(np.percentile(gray, high_pct))
@@ -89,12 +89,12 @@ def fshs(gray, low_pct=0.0, high_pct=100.0):
 
 
 def flatten_illumination(gray, background_bright, se_frac=0.4):
-    """San phẳng ánh sáng không đều theo mô hình suy giảm nhân f = i(x,y) * r(x,y).
+    """Flatten uneven illumination under the multiplicative model f = i(x,y) * r(x,y).
 
-    Ước lượng nền i(x,y) bằng phép Đóng (nền sáng) hoặc Mở (nền tối) với SE LỚN HƠN
-    vật thể lớn nhất (nếu nhỏ hơn, vật thể bị tính lẫn vào nền). Nền sáng: chia cho nền.
-    Nền tối: trừ nền (top-hat), vì chia cho giá trị gần 0 sẽ khuếch đại nhiễu.
-    Thực hiện ở 1/4 độ phân giải cho nhanh.
+    The background i(x,y) is estimated by closing (bright background) or opening (dark background)
+    with an SE LARGER than the largest object (otherwise objects leak into the background). Bright
+    background: divide by it. Dark background: subtract it (top-hat), since dividing by values near 0 amplifies noise.
+    Computed at 1/4 resolution for speed.
     """
     h, w = gray.shape
     small = cv2.resize(gray, (max(1, w // 4), max(1, h // 4)), interpolation=cv2.INTER_AREA)
@@ -112,13 +112,13 @@ def flatten_illumination(gray, background_bright, se_frac=0.4):
 
 
 def background_difference(bgr, kernel_frac=0.25, color=True):
-    """Ảnh khác biệt so với nền: D(n) = ||I(n) - B(n)|| (ý tưởng Change Detection, Mục 9.5).
+    """Background-difference image: D(n) = ||I(n) - B(n)|| (change-detection idea, Section 9.5).
 
-    Thay "khung tham chiếu" của video bằng nền B(n) ước lượng từ chính ảnh: lọc trung vị
-    cửa sổ lớn xóa mọi vật nhỏ hơn ~0.8 lần cửa sổ, chỉ giữ lại nền (kể cả độ sáng lệch).
-    Vật SÁNG hơn hay TỐI hơn nền đều cho D lớn, nên không cần xác định cực tính.
-    Với color=True, D đo trong không gian Lab: bắt được xu vàng trên thảm xanh dù
-    độ sáng gần bằng nhau. Tính nền ở 1/4 độ phân giải cho nhanh.
+    The "reference frame" of video is replaced by a background B(n) estimated from the image itself: a
+    large median window removes every object smaller than ~0.8x the window and keeps only the background (including shading).
+    Objects BRIGHTER or DARKER than the background both give a large D, so no polarity detection is needed.
+    With color=True, D is measured in Lab space: it catches yellow coins on a green mat even when their
+    brightness is about the same. The background is computed at 1/4 resolution for speed.
     """
     h, w = bgr.shape[:2]
     src = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB) if color else rgb_to_gray(bgr)
@@ -131,10 +131,10 @@ def background_difference(bgr, kernel_frac=0.25, color=True):
 
 
 # ----------------------------------------------------------------------------
-# 1.4 Khử nhiễu trong miền không gian (Chương 2.1, 2.2, 3.3)
+# 1.4 Spatial-domain denoising (Lectures 2.1, 2.2, 3.3)
 # ----------------------------------------------------------------------------
 def gaussian_kernel_1d(ksize, sigma):
-    """w(s) ~ exp(-s^2 / 2sigma^2); Gaussian 2-D tách được w(s,t) = w(s)·w(t)."""
+    """w(s) ~ exp(-s^2 / 2sigma^2); the 2-D Gaussian is separable, w(s,t) = w(s)·w(t)."""
     s = np.arange(ksize) - ksize // 2
     w = np.exp(-(s ** 2) / (2.0 * sigma ** 2))
     return w / w.sum()
@@ -146,27 +146,27 @@ def gaussian_filter(gray, ksize=5, sigma=1.0, backend="numpy"):
     h, w = gray.shape
     p = ksize // 2
     wk = gaussian_kernel_1d(ksize, sigma)
-    f = np.pad(gray.astype(np.float64), p, mode="reflect")  # = BORDER_REFLECT_101 của OpenCV
-    tmp = sum(wk[i] * f[:, i:i + w] for i in range(ksize))      # tích chập theo hàng
-    out = sum(wk[i] * tmp[i:i + h, :] for i in range(ksize))    # tích chập theo cột
+    f = np.pad(gray.astype(np.float64), p, mode="reflect")  # = OpenCV BORDER_REFLECT_101
+    tmp = sum(wk[i] * f[:, i:i + w] for i in range(ksize))      # convolve along rows
+    out = sum(wk[i] * tmp[i:i + h, :] for i in range(ksize))    # convolve along columns
     return np.clip(np.rint(out), 0, K - 1).astype(np.uint8)
 
 
 def median_filter(gray, ksize=5, backend="numpy"):
-    """f^(n) = median_{(s,t) in S_xy} g(s,t) – bộ lọc thống kê thứ tự phi tuyến."""
+    """f^(n) = median_{(s,t) in S_xy} g(s,t) – a nonlinear order-statistic filter."""
     if backend == "opencv":
         return cv2.medianBlur(gray, ksize)
     p = ksize // 2
-    padded = np.pad(gray, p, mode="edge")  # = BORDER_REPLICATE mà cv2.medianBlur dùng
+    padded = np.pad(gray, p, mode="edge")  # = BORDER_REPLICATE used by cv2.medianBlur
     win = np.lib.stride_tricks.sliding_window_view(padded, (ksize, ksize))
     return np.median(win, axis=(-2, -1)).astype(np.uint8)
 
 
 def denoise(gray, cfg):
-    """Trung vị TRƯỚC (diệt nhiễu xung), Gaussian SAU (làm mịn nhiễu cảm biến).
+    """Median FIRST (kills impulse noise), Gaussian AFTER (smooths sensor noise).
 
-    Nếu làm ngược lại, Gaussian sẽ "loang" mỗi điểm nhiễu xung ra cả vùng lân cận
-    và bộ lọc trung vị phía sau khó loại bỏ hơn.
+    In the opposite order the Gaussian would "smear" each impulse over its neighborhood
+    and the median filter that follows would have a harder time removing it.
     """
     out = gray
     if cfg.median_ksize and cfg.median_ksize > 1:

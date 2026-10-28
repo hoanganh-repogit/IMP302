@@ -1,5 +1,5 @@
 {
-  "A. Gốc: Otsu trên ảnh xám": {
+  "A. Baseline: Otsu on gray image": {
     "overrides": {},
     "n_images": 480,
     "count_exact_acc": 0.125,
@@ -15,7 +15,7 @@
     "recall": 0.5669199298655757,
     "f1": 0.5148619957537155
   },
-  "B. Gốc + san phẳng ánh sáng": {
+  "B. Baseline + illumination flattening": {
     "overrides": {
       "flatten_light": true
     },
@@ -33,7 +33,7 @@
     "recall": 0.5669199298655757,
     "f1": 0.4044194288096728
   },
-  "C. K-Means trên ảnh xám": {
+  "C. K-Means on gray image": {
     "overrides": {
       "seg_method": "kmeans"
     },
@@ -51,7 +51,7 @@
     "recall": 0.5847457627118644,
     "f1": 0.5290851401374933
   },
-  "D. Trừ nền (xám) + Otsu": {
+  "D. Background diff. (gray) + Otsu": {
     "overrides": {
       "seg_method": "bgsub",
       "bg_color": false,
@@ -71,7 +71,7 @@
     "recall": 0.8416130917592052,
     "f1": 0.6395736175882745
   },
-  "E. Trừ nền (xám) + Triangle": {
+  "E. Background diff. (gray) + Triangle": {
     "overrides": {
       "seg_method": "bgsub",
       "bg_color": false
@@ -90,7 +90,7 @@
     "recall": 0.9567504383401519,
     "f1": 0.5871592539454806
   },
-  "F. Trừ nền (Lab) + Otsu": {
+  "F. Background diff. (Lab) + Otsu": {
     "overrides": {
       "seg_method": "bgsub",
       "bg_threshold": "otsu"
@@ -109,7 +109,7 @@
     "recall": 0.9202220923436587,
     "f1": 0.6780792420327304
   },
-  "G. Trừ nền (Lab) + Triangle": {
+  "G. Background diff. (Lab) + Triangle": {
     "overrides": {
       "seg_method": "bgsub"
     },
@@ -127,7 +127,7 @@
     "recall": 0.9874342489772063,
     "f1": 0.6002842423165748
   },
-  "H. Trừ nền (Lab) + MAD k=6": {
+  "H. Background diff. (Lab) + MAD k=6": {
     "overrides": {
       "seg_method": "bgsub",
       "bg_threshold": "mad"
@@ -146,7 +146,7 @@
     "recall": 0.9777907656341321,
     "f1": 0.5431818181818182
   },
-  "I. G + lọc hình dạng (tròn>=0.5, A<=5%)": {
+  "I. G + shape filter (circ>=0.5, A<=5%)": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.5,
@@ -166,7 +166,7 @@
     "recall": 0.9812974868497955,
     "f1": 0.6638331521201937
   },
-  "J. G + lọc hình dạng (tròn>=0.6, A<=5%)": {
+  "J. G + shape filter (circ>=0.6, A<=5%)": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.6,
@@ -186,7 +186,7 @@
     "recall": 0.9760374050263004,
     "f1": 0.7064297800338409
   },
-  "K. I nhưng tắt Watershed": {
+  "K. I without watershed": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.5,
@@ -207,7 +207,7 @@
     "recall": 0.9278199883109293,
     "f1": 0.870936771361953
   },
-  "L. I + bỏ vùng chạm viền": {
+  "L. I + border clearing": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.5,
@@ -228,7 +228,7 @@
     "recall": 0.978375219170076,
     "f1": 0.8905439553132066
   },
-  "M. L + chỉ Watershed vùng tròn>=0.35": {
+  "M. L + watershed only if circ>=0.35": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.5,
@@ -250,7 +250,7 @@
     "recall": 0.9678550555230859,
     "f1": 0.9122710370472387
   },
-  "N. M + bỏ vụn < 0.25 x trung vị": {
+  "N. M + drop crumbs < 0.25 x median": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.5,
@@ -273,7 +273,7 @@
     "recall": 0.9658094681472823,
     "f1": 0.9450957963969115
   },
-  "O. N với tròn>=0.6": {
+  "O. N with circ>=0.6": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.6,
@@ -296,7 +296,7 @@
     "recall": 0.9605493863237873,
     "f1": 0.9490399884509889
   },
-  "P. N với tròn>=0.4": {
+  "P. N with circ>=0.4": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.4,
@@ -319,7 +319,7 @@
     "recall": 0.9693161893629456,
     "f1": 0.942999289267946
   },
-  "Q. N với ngưỡng Otsu": {
+  "Q. N with Otsu threshold": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.5,
@@ -343,7 +343,7 @@
     "recall": 0.8872004675628288,
     "f1": 0.9170820117806978
   },
-  "R. N với ảnh xám (không màu)": {
+  "R. N with gray image (no color)": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.5,
@@ -367,7 +367,7 @@
     "recall": 0.9099941554646406,
     "f1": 0.8879384088964928
   },
-  "S. N với cửa sổ nền 0.15": {
+  "S. N with background window 0.15": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.5,
@@ -391,7 +391,7 @@
     "recall": 0.9699006428988896,
     "f1": 0.9510028653295128
   },
-  "T. N với cửa sổ nền 0.35": {
+  "T. N with background window 0.35": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.5,
@@ -415,7 +415,7 @@
     "recall": 0.9547048509643483,
     "f1": 0.943946836174516
   },
-  "U. N nhưng tắt Watershed": {
+  "U. N without watershed": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.5,
@@ -439,7 +439,7 @@
     "recall": 0.9263588544710696,
     "f1": 0.935655253837072
   },
-  "V. N + cửa sổ 0.15 + tròn>=0.6 [CHỐT]": {
+  "V. N + window 0.15 + circ>=0.6 [FINAL]": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.6,
@@ -463,7 +463,7 @@
     "recall": 0.9634716540035068,
     "f1": 0.9535791757049892
   },
-  "X. V nhưng tắt Watershed": {
+  "X. V without watershed": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.6,
@@ -488,7 +488,7 @@
     "recall": 0.9257744009351256,
     "f1": 0.9497826412831659
   },
-  "W. N + cửa sổ 0.20 + tròn>=0.6": {
+  "W. N + window 0.20 + circ>=0.6": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.6,

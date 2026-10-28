@@ -1,7 +1,7 @@
-"""So sánh nhiều cấu hình pipeline trên ảnh thật có ground truth (bảng ablation cho báo cáo).
+"""Compare many pipeline configurations on real photos with ground truth (ablation table for the report).
 
-Chỉ nên CHỌN cấu hình trên tập dev; tập test chỉ chạy một lần với cấu hình đã chọn.
-Chạy:  python tools/experiment_real.py data/real/hf_coins dev
+Configurations must be SELECTED on the dev split only; the test split is run once with the chosen configuration.
+Run:  python tools/experiment_real.py data/real/hf_coins dev
 """
 import json
 import sys
@@ -15,40 +15,40 @@ from ipm.evaluate import evaluate_image  # noqa: E402
 from ipm.preprocess import load_image  # noqa: E402
 from main import aggregate  # noqa: E402
 
-# Kết quả giống hệt backend numpy (tools/verify_impl.py), nhanh hơn. Tắt chặn Watershed theo độ tròn
-# ở cấu hình nền để các dòng A–K đúng là "trước khi cải tiến"; các dòng sau bật lại từng bước.
+# Same results as the numpy backend (tools/verify_impl.py), but faster. Circularity-gated watershed is
+# disabled in the base configuration so rows A–K really are "before the improvements"; later rows re-enable it step by step.
 BASE = Config(backend="opencv", split_min_circularity=0.0)
 SHAPE = {"seg_method": "bgsub", "min_circularity": 0.5, "max_area_frac": 0.05}
 FULL = {**SHAPE, "clear_border": True, "split_min_circularity": 0.35, "min_area_rel_median": 0.25}
 EXPERIMENTS = [
-    ("A. Gốc: Otsu trên ảnh xám", {}),
-    ("B. Gốc + san phẳng ánh sáng", {"flatten_light": True}),
-    ("C. K-Means trên ảnh xám", {"seg_method": "kmeans"}),
-    ("D. Trừ nền (xám) + Otsu", {"seg_method": "bgsub", "bg_color": False, "bg_threshold": "otsu"}),
-    ("E. Trừ nền (xám) + Triangle", {"seg_method": "bgsub", "bg_color": False}),
-    ("F. Trừ nền (Lab) + Otsu", {"seg_method": "bgsub", "bg_threshold": "otsu"}),
-    ("G. Trừ nền (Lab) + Triangle", {"seg_method": "bgsub"}),
-    ("H. Trừ nền (Lab) + MAD k=6", {"seg_method": "bgsub", "bg_threshold": "mad"}),
-    ("I. G + lọc hình dạng (tròn>=0.5, A<=5%)",
+    ("A. Baseline: Otsu on gray image", {}),
+    ("B. Baseline + illumination flattening", {"flatten_light": True}),
+    ("C. K-Means on gray image", {"seg_method": "kmeans"}),
+    ("D. Background diff. (gray) + Otsu", {"seg_method": "bgsub", "bg_color": False, "bg_threshold": "otsu"}),
+    ("E. Background diff. (gray) + Triangle", {"seg_method": "bgsub", "bg_color": False}),
+    ("F. Background diff. (Lab) + Otsu", {"seg_method": "bgsub", "bg_threshold": "otsu"}),
+    ("G. Background diff. (Lab) + Triangle", {"seg_method": "bgsub"}),
+    ("H. Background diff. (Lab) + MAD k=6", {"seg_method": "bgsub", "bg_threshold": "mad"}),
+    ("I. G + shape filter (circ>=0.5, A<=5%)",
      {"seg_method": "bgsub", "min_circularity": 0.5, "max_area_frac": 0.05}),
-    ("J. G + lọc hình dạng (tròn>=0.6, A<=5%)",
+    ("J. G + shape filter (circ>=0.6, A<=5%)",
      {"seg_method": "bgsub", "min_circularity": 0.6, "max_area_frac": 0.05}),
-    ("K. I nhưng tắt Watershed", {**SHAPE, "split_touching": False}),
-    ("L. I + bỏ vùng chạm viền", {**SHAPE, "clear_border": True}),
-    ("M. L + chỉ Watershed vùng tròn>=0.35",
+    ("K. I without watershed", {**SHAPE, "split_touching": False}),
+    ("L. I + border clearing", {**SHAPE, "clear_border": True}),
+    ("M. L + watershed only if circ>=0.35",
      {**SHAPE, "clear_border": True, "split_min_circularity": 0.35}),
-    ("N. M + bỏ vụn < 0.25 x trung vị", FULL),
-    ("O. N với tròn>=0.6", {**FULL, "min_circularity": 0.6}),
-    ("P. N với tròn>=0.4", {**FULL, "min_circularity": 0.4}),
-    ("Q. N với ngưỡng Otsu", {**FULL, "bg_threshold": "otsu"}),
-    ("R. N với ảnh xám (không màu)", {**FULL, "bg_color": False}),
-    ("S. N với cửa sổ nền 0.15", {**FULL, "bg_kernel_frac": 0.15}),
-    ("T. N với cửa sổ nền 0.35", {**FULL, "bg_kernel_frac": 0.35}),
-    ("U. N nhưng tắt Watershed", {**FULL, "split_touching": False}),
-    ("V. N + cửa sổ 0.15 + tròn>=0.6 [CHỐT]", {**FULL, "bg_kernel_frac": 0.15, "min_circularity": 0.6}),
-    ("X. V nhưng tắt Watershed",
+    ("N. M + drop crumbs < 0.25 x median", FULL),
+    ("O. N with circ>=0.6", {**FULL, "min_circularity": 0.6}),
+    ("P. N with circ>=0.4", {**FULL, "min_circularity": 0.4}),
+    ("Q. N with Otsu threshold", {**FULL, "bg_threshold": "otsu"}),
+    ("R. N with gray image (no color)", {**FULL, "bg_color": False}),
+    ("S. N with background window 0.15", {**FULL, "bg_kernel_frac": 0.15}),
+    ("T. N with background window 0.35", {**FULL, "bg_kernel_frac": 0.35}),
+    ("U. N without watershed", {**FULL, "split_touching": False}),
+    ("V. N + window 0.15 + circ>=0.6 [FINAL]", {**FULL, "bg_kernel_frac": 0.15, "min_circularity": 0.6}),
+    ("X. V without watershed",
      {**FULL, "bg_kernel_frac": 0.15, "min_circularity": 0.6, "split_touching": False}),
-    ("W. N + cửa sổ 0.20 + tròn>=0.6", {**FULL, "bg_kernel_frac": 0.20, "min_circularity": 0.6}),
+    ("W. N + window 0.20 + circ>=0.6", {**FULL, "bg_kernel_frac": 0.20, "min_circularity": 0.6}),
 ]
 
 
@@ -67,8 +67,8 @@ def main():
     only = sys.argv[3].split(",") if len(sys.argv) > 3 else None
     gt = json.load(open(root / "ground_truth.json", encoding="utf-8"))
     names = json.load(open(root / "split.json", encoding="utf-8"))[subset]
-    print(f"Tập {subset}: {len(names)} ảnh\n")
-    print(f"{'Cấu hình':<42}{'Đếm đúng':>9}{'±1':>7}{'MAE':>7}{'Prec':>7}{'Rec':>7}{'F1':>7}{'ms':>7}")
+    print(f"{subset} split: {len(names)} images\n")
+    print(f"{'Configuration':<42}{'Exact':>9}{'±1':>7}{'MAE':>7}{'Prec':>7}{'Rec':>7}{'F1':>7}{'ms':>7}")
     print("-" * 93)
     results = {}
     with ProcessPoolExecutor() as ex:
@@ -85,7 +85,7 @@ def main():
     out.parent.mkdir(exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
-    print(f"\nĐã lưu: {out}")
+    print(f"\nSaved: {out}")
 
 
 if __name__ == "__main__":

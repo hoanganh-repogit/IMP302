@@ -1,5 +1,5 @@
 {
-  "A. Gốc: Otsu trên ảnh xám": {
+  "A. Baseline: Otsu on gray image": {
     "overrides": {},
     "n_images": 480,
     "count_exact_acc": 0.12916666666666668,
@@ -15,7 +15,7 @@
     "recall": 0.5100413467217956,
     "f1": 0.4500912170966901
   },
-  "C. K-Means trên ảnh xám": {
+  "C. K-Means on gray image": {
     "overrides": {
       "seg_method": "kmeans"
     },
@@ -33,7 +33,7 @@
     "recall": 0.5277613703484938,
     "f1": 0.46295336787564767
   },
-  "G. Trừ nền (Lab) + Triangle": {
+  "G. Background diff. (Lab) + Triangle": {
     "overrides": {
       "seg_method": "bgsub"
     },
@@ -51,7 +51,7 @@
     "recall": 0.9875959834613113,
     "f1": 0.6070067162824468
   },
-  "N. M + bỏ vụn < 0.25 x trung vị": {
+  "N. M + drop crumbs < 0.25 x median": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.5,
@@ -74,7 +74,7 @@
     "recall": 0.9654459539279385,
     "f1": 0.9348012582213325
   },
-  "V. N + cửa sổ 0.15 + tròn>=0.6 [CHỐT]": {
+  "V. N + window 0.15 + circ>=0.6 [FINAL]": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.6,
@@ -98,7 +98,7 @@
     "recall": 0.9589486119314826,
     "f1": 0.9397973950795948
   },
-  "X. V nhưng tắt Watershed": {
+  "X. V without watershed": {
     "overrides": {
       "seg_method": "bgsub",
       "min_circularity": 0.6,

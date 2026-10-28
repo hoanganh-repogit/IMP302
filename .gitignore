@@ -1,22 +1,22 @@
-# ---- Tài liệu môn học, không đưa lên git ----
-# Slide bài giảng (PDF)
+# ---- Course material, not part of the repository ----
+# Lecture slides (PDF)
 Student/
-# Đề bài gốc
+# Original project brief
 b_o_c_o_d_n_imp302m.md
-# Kế hoạch nội bộ của nhóm
+# Internal team plan
 PLAN.md
 
-# ---- Dữ liệu tải về (tạo lại được, xem README) ----
+# ---- Downloaded data (can be re-created, see README) ----
 data/downloads/
 
-# ---- Môi trường Python ----
+# ---- Python environment ----
 .venv/
 venv/
 __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
 
-# ---- File trung gian khi biên dịch LaTeX ----
+# ---- LaTeX build files ----
 report/*.aux
 report/*.log
 report/*.out
@@ -26,10 +26,10 @@ report/*.blg
 report/*.synctex.gz
 report/*.fdb_latexmk
 report/*.fls
-# Gói Overleaf, tạo lại từ main.tex + figures/
+# Overleaf bundle, re-created from main.tex + figures/ by tools/make_overleaf_zip.py
 report/IMP302m_report_overleaf.zip
 
-# ---- Hệ điều hành / editor ----
+# ---- OS / editor ----
 .DS_Store
 Thumbs.db
 desktop.ini

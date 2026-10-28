@@ -2,4 +2,4 @@ opencv-python>=4.8
 numpy>=1.24
 matplotlib>=3.7
 scikit-image>=0.21
-pyarrow>=14          # chỉ cần cho tools/import_hf_coins.py
+pyarrow>=14          # only needed by tools/import_hf_coins.py

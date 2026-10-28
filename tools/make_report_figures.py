@@ -1,9 +1,9 @@
-"""Sinh số liệu, biểu đồ và hình minh họa (chữ tiếng Anh) cho báo cáo LaTeX (report/).
+"""Generate the numbers, charts and illustrations for the LaTeX report (report/).
 
-Yêu cầu đã chạy trước: tools/generate_synthetic.py, tools/import_hf_coins.py, tools/real_cases.py,
+Prerequisites: tools/generate_synthetic.py, tools/import_hf_coins.py, tools/real_cases.py,
 tools/experiment_real.py (dev + test).
-Chạy:  python tools/make_report_figures.py            (đầy đủ, khoảng 5 phút)
-       python tools/make_report_figures.py --charts-only   (chỉ vẽ lại biểu đồ từ số liệu đã lưu)
+Run:  python tools/make_report_figures.py            (full run, about 5 minutes)
+       python tools/make_report_figures.py --charts-only   (only redraw the charts from saved numbers)
 """
 import csv
 import json
@@ -33,11 +33,11 @@ DATA = ROOT / "report" / "data"
 REAL = ROOT / "data" / "real" / "hf_coins"
 SYN = ROOT / "data" / "synthetic"
 
-# Bảng màu đã kiểm định (dataviz validator: PASS ở chế độ sáng, nền trắng)
+# Validated palette (dataviz validator: PASS in light mode, white surface)
 BLUE, ORANGE, AQUA, YELLOW = "#2a78d6", "#eb6834", "#1baf7a", "#eda100"
 INK, INK2, GRID, AXIS = "#0b0b0b", "#52514e", "#e1e0d9", "#c3c2b7"
-GT_BGR, PRED_BGR = (72, 73, 227), (214, 120, 42)   # đỏ #e34948 = nhãn chuẩn, xanh #2a78d6 = dự đoán
-COL_W = 3.45  # Độ rộng 1 cột IEEE (inch)
+GT_BGR, PRED_BGR = (72, 73, 227), (214, 120, 42)   # red #e34948 = ground truth, blue #2a78d6 = prediction
+COL_W = 3.45  # Width of one IEEE column (inches)
 
 plt.rcParams.update({
     "font.family": "DejaVu Sans", "font.size": 7.5, "axes.titlesize": 8,
@@ -70,7 +70,7 @@ def _boxes(img, boxes, color, scale=1.0, pad=0, th=3):
 
 
 def _panel_grid(rows, path, width, title_size=6.5):
-    """rows: list các hàng, mỗi hàng là list (ảnh, tiêu đề)."""
+    """rows: list of rows, each row a list of (image, title)."""
     nr, nc = len(rows), len(rows[0])
     h0, w0 = rows[0][0][0].shape[:2]
     fig, axs = plt.subplots(nr, nc, figsize=(width, width / nc * h0 / w0 * nr + 0.22 * nr), squeeze=False)
@@ -87,7 +87,7 @@ def _panel_grid(rows, path, width, title_size=6.5):
 
 
 # ---------------------------------------------------------------------------
-# 1. Kết quả từng ảnh trên tập test (A và V)
+# 1. Per-image results on the test split (A and V)
 # ---------------------------------------------------------------------------
 def _eval(args):
     name, gt_entry, which = args
@@ -143,7 +143,7 @@ def case_metrics(rows, cases):
 
 
 # ---------------------------------------------------------------------------
-# 2. Biểu đồ
+# 2. Charts
 # ---------------------------------------------------------------------------
 def chart_count_error(rows):
     bins = list(range(-4, 5))
@@ -172,13 +172,13 @@ def chart_count_error(rows):
 
 
 ABLATION = [
-    ("A. Gốc: Otsu trên ảnh xám", "A  Baseline: Otsu, gray"),
-    ("G. Trừ nền (Lab) + Triangle", "G  Lab background diff. + Triangle"),
-    ("I. G + lọc hình dạng (tròn>=0.5, A<=5%)", "I  + shape filter"),
-    ("L. I + bỏ vùng chạm viền", "L  + border clearing"),
-    ("M. L + chỉ Watershed vùng tròn>=0.35", "M  + gated watershed"),
-    ("N. M + bỏ vụn < 0.25 x trung vị", "N  + small-fragment removal"),
-    ("V. N + cửa sổ 0.15 + tròn>=0.6 [CHỐT]", "V  + tuning (final)"),
+    ("A. Baseline: Otsu on gray image", "A  Baseline: Otsu, gray"),
+    ("G. Background diff. (Lab) + Triangle", "G  Lab background diff. + Triangle"),
+    ("I. G + shape filter (circ>=0.5, A<=5%)", "I  + shape filter"),
+    ("L. I + border clearing", "L  + border clearing"),
+    ("M. L + watershed only if circ>=0.35", "M  + gated watershed"),
+    ("N. M + drop crumbs < 0.25 x median", "N  + small-fragment removal"),
+    ("V. N + window 0.15 + circ>=0.6 [FINAL]", "V  + tuning (final)"),
 ]
 
 
@@ -303,11 +303,11 @@ def chart_timing(t):
 
 
 # ---------------------------------------------------------------------------
-# 3. Hình ảnh giả lập
+# 3. Synthetic figures
 # ---------------------------------------------------------------------------
 def synthetic_figures():
     gt = json.load(open(SYN / "ground_truth.json", encoding="utf-8"))
-    cfg = Config()  # backend numpy (tự cài đặt) – khớp với bảng số liệu giả lập trong báo cáo
+    cfg = Config()  # numpy backend (own implementations) – matches the synthetic table in the report
     rows, stats = [], []
     results = {}
     for stem, title in SYN_CASES:
@@ -326,7 +326,7 @@ def synthetic_figures():
         ])
     _panel_grid(rows, OUT / "synth_grid.jpg", 7.16)
     chart_synth_regions(stats)
-    # Hình chuyên đề cho từng case
+    # Dedicated figure for each case
     fig_histogram(results["case2_low_contrast"], OUT / "case2_histogram.png")
     fig_fshs_vs_threshold(results["case2_low_contrast"], OUT / "case2_fshs_threshold.png")
     fig_morphology(results["case3_noisy_glare"], OUT / "case3_morphology.png")
@@ -348,7 +348,7 @@ def synthetic_figures():
 
 
 # ---------------------------------------------------------------------------
-# 4. Hình ảnh thật
+# 4. Real-image figures
 # ---------------------------------------------------------------------------
 def real_case_grid(rows, cases):
     gt = json.load(open(REAL / "ground_truth.json", encoding="utf-8"))
@@ -356,7 +356,7 @@ def real_case_grid(rows, cases):
     rng = np.random.default_rng(11)
     grid, picks = [], {}
     for k, title in REAL_CASES.items():
-        name = str(rng.choice(sorted(n for n in v if cases[n] == k)))  # chọn ngẫu nhiên (seed cố định)
+        name = str(rng.choice(sorted(n for n in v if cases[n] == k)))  # random pick (fixed seed)
         picks[k] = name
         img = load_image(REAL / name)
         ra, rv = run(img, BASELINE), run(img, FINAL)
@@ -396,7 +396,7 @@ def main():
     if "--charts-only" in sys.argv:
         rows = load_rows()
     else:
-        print("1/5 Chạy A và V trên tập test ...")
+        print("1/5 Running A and V on the test split ...")
         rows = per_image_test()
     m = case_metrics(rows, cases)
     for cfg in ("A", "V"):
@@ -404,7 +404,7 @@ def main():
             d = m[cfg][k]
             print(f"   {cfg} {str(k):<4} n={d['n_images']:>3} coins={d['n_coins']:>4} exact={d['exact']:5.1f}% "
                   f"±1={d['within1']:5.1f}% MAE={d['mae']:.2f} P={d['precision']:.3f} R={d['recall']:.3f} F1={d['f1']:.3f}")
-    print("2/5 Biểu đồ ...")
+    print("2/5 Charts ...")
     chart_count_error(rows)
     chart_ablation()
     chart_real_cases(m)
@@ -414,14 +414,14 @@ def main():
         real_examples(rows)
         synthetic_figures()
         return
-    print("3/5 Đo thời gian đơn luồng ...")
+    print("3/5 Single-thread timing ...")
     t = measure_timing()
     print("   ", json.dumps(t))
     chart_timing(t)
-    print("4/5 Hình ảnh thật ...")
+    print("4/5 Real-image figures ...")
     print("   ", real_case_grid(rows, cases))
     real_examples(rows)
-    print("5/5 Hình ảnh giả lập ...")
+    print("5/5 Synthetic figures ...")
     synthetic_figures()
     print(f"Xong: {OUT}")
 

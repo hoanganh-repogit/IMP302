@@ -1,4 +1,4 @@
-"""Điều phối toàn bộ pipeline 4 giai đoạn và đo thời gian từng giai đoạn."""
+"""Runs the whole 4-stage pipeline and times each stage."""
 import time
 from dataclasses import dataclass, field
 
@@ -17,16 +17,16 @@ from .split import split_touching
 @dataclass
 class PipelineResult:
     cfg: Config
-    image: np.ndarray          # Ảnh màu BGR sau chuẩn hóa kích thước
+    image: np.ndarray          # BGR color image after size normalization
     scale: float
     gray: np.ndarray           # f(n1, n2)
-    contrast: np.ndarray       # Sau FSHS (và san phẳng ánh sáng nếu bật)
+    contrast: np.ndarray       # After FSHS (and illumination flattening if enabled)
     fshs_range: tuple          # (A, B)
     aod_before: float
     aod_after: float
     smooth: np.ndarray         # g_smooth(n1, n2)
     seg_info: dict
-    mask_raw: np.ndarray       # b(n) ngay sau phân ngưỡng
+    mask_raw: np.ndarray       # b(n) right after thresholding
     mask_open: np.ndarray
     mask_closed: np.ndarray
     mask_clean: np.ndarray     # b_clean(n)
@@ -47,7 +47,7 @@ def run(bgr, cfg: Config) -> PipelineResult:
         t[name] = round((now - tic) * 1000, 2)
         tic = now
 
-    # ===== GIAI ĐOẠN 1: Tiền xử lý mức xám =====
+    # ===== STAGE 1: Gray-level preprocessing =====
     img, scale = pre.resize_to_width(bgr, cfg.work_width, cfg.resize_method)
     gray = pre.rgb_to_gray(img)
     aod_before = pre.aod(gray)
@@ -60,13 +60,13 @@ def run(bgr, cfg: Config) -> PipelineResult:
         contrast, _, _ = pre.fshs(contrast, cfg.fshs_low_pct, cfg.fshs_high_pct)
     aod_after = pre.aod(contrast)
     if cfg.seg_method == "bgsub":
-        # Phân đoạn trên ảnh khác biệt so với nền D(n) thay vì trên ảnh xám
+        # Segment the background-difference image D(n) instead of the gray image
         smooth = pre.denoise(pre.background_difference(img, cfg.bg_kernel_frac, cfg.bg_color), cfg)
     else:
         smooth = pre.denoise(contrast, cfg)
     lap("1_preprocess")
 
-    # ===== GIAI ĐOẠN 2: Phân đoạn + Hình thái học =====
+    # ===== STAGE 2: Segmentation + morphology =====
     mask_raw, seg_info = seg.segment(smooth, cfg)
     se = morph.structuring_element(cfg.se_size)
     mask_open = morph.opening(mask_raw, se, cfg.open_iter, cfg.backend)
@@ -74,7 +74,7 @@ def run(bgr, cfg: Config) -> PipelineResult:
     mask_clean = morph.fill_holes(mask_closed) if cfg.fill_holes else mask_closed
     lap("2_segmentation")
 
-    # ===== GIAI ĐOẠN 3: Gán nhãn + Tách vật dính + Đặc trưng =====
+    # ===== STAGE 3: Labeling + splitting touching objects + features =====
     labels, n = lab.label(mask_clean, cfg.connectivity, cfg.backend)
     n_components = n
     a_min = max(cfg.min_area_px, int(cfg.min_area_frac * mask_clean.size))
@@ -89,8 +89,8 @@ def run(bgr, cfg: Config) -> PipelineResult:
     objects = feat.extract(labels, n)
     n_rejected = 0
     if cfg.min_circularity > 0 or cfg.max_area_frac < 1 or cfg.min_area_rel_median > 0:
-        # Lọc hình dạng (Chương 10): bỏ vùng thuôn dài (mép bàn, vệt bóng), mảng nền quá lớn
-        # và vụn nhỏ bất thường so với kích thước điển hình của các vật trong ảnh
+        # Shape filter (Lecture 10): drop elongated regions (table edges, shadow streaks), oversized
+        # background patches and crumbs that are abnormally small for the typical object size in the image
         a_max = cfg.max_area_frac * labels.size
         keep = [o for o in objects if o.circularity >= cfg.min_circularity and o.area <= a_max]
         if keep and cfg.min_area_rel_median > 0:
@@ -107,7 +107,7 @@ def run(bgr, cfg: Config) -> PipelineResult:
             objects = keep
     lap("3_label_features")
 
-    # ===== GIAI ĐOẠN 4: Phân loại =====
+    # ===== STAGE 4: Classification =====
     class_info = clf.classify(objects, cfg)
     lap("4_classify")
     t["total"] = round((time.perf_counter() - t0) * 1000, 2)

@@ -1,51 +1,51 @@
-"""Tham số cấu hình toàn hệ thống. Mọi "con số ma thuật" của pipeline đều nằm ở đây."""
+"""System-wide configuration. Every "magic number" of the pipeline lives here."""
 from dataclasses import dataclass, asdict
 
 
 @dataclass
 class Config:
-    # ---------- Giai đoạn 1: Tiền xử lý (Chương 1, 2, 3, 7, 8) ----------
-    work_width: int = 800            # Chuẩn hóa chiều rộng ảnh (px); ảnh nhỏ hơn giữ nguyên
-    resize_method: str = "area"      # "area" (cv2.INTER_AREA, chống răng cưa) | "nearest" (tự cài đặt, Chương 1.1)
-    fshs_low_pct: float = 0.5        # FSHS theo phân vị: A = P0.5, B = P99.5 (chống điểm ngoại lai)
+    # ---------- Stage 1: Preprocessing (Lectures 1, 2, 3, 7, 8) ----------
+    work_width: int = 800            # Normalized image width (px); smaller images are kept as is
+    resize_method: str = "area"      # "area" (cv2.INTER_AREA, anti-aliased) | "nearest" (own implementation, Lecture 1.1)
+    fshs_low_pct: float = 0.5        # Percentile-based FSHS: A = P0.5, B = P99.5 (robust to outliers)
     fshs_high_pct: float = 99.5
-    flatten_light: bool = False      # San phẳng ánh sáng không đều (Hướng phát triển 7.2)
-    flatten_se_frac: float = 0.4     # Kích thước SE ước lượng nền / cạnh ngắn của ảnh (phải > vật lớn nhất)
-    median_ksize: int = 5            # Lọc trung vị khử nhiễu xung (Chương 2.2, 3.3)
-    gaussian_ksize: int = 5          # Lọc Gaussian khử nhiễu cảm biến (Chương 2.1, 3.3)
+    flatten_light: bool = False      # Flatten uneven illumination (future work 7.2)
+    flatten_se_frac: float = 0.4     # Background-estimation SE size / short image side (must exceed the largest object)
+    median_ksize: int = 5            # Median filter against impulse noise (Lectures 2.2, 3.3)
+    gaussian_ksize: int = 5          # Gaussian filter against sensor noise (Lectures 2.1, 3.3)
     gaussian_sigma: float = 1.0
 
-    # ---------- Giai đoạn 2: Phân đoạn & Hình thái học (Chương 1.2, 2.3, 9.1) ----------
-    seg_method: str = "otsu"         # "otsu" | "kmeans" | "bgsub" (trừ nền – cho ảnh thật, nền không đều)
-    bg_kernel_frac: float = 0.25     # bgsub: cửa sổ trung vị ước lượng nền / cạnh ngắn (phải > 1.25 lần đường kính vật)
-    bg_color: bool = True            # bgsub: khác biệt màu trong không gian Lab (False = chỉ độ sáng)
+    # ---------- Stage 2: Segmentation & morphology (Lectures 1.2, 2.3, 9.1) ----------
+    seg_method: str = "otsu"         # "otsu" | "kmeans" | "bgsub" (background subtraction – real photos, non-uniform background)
+    bg_kernel_frac: float = 0.25     # bgsub: median window for the background / short side (must exceed 1.25x object diameter)
+    bg_color: bool = True            # bgsub: color difference in Lab space (False = luminance only)
     bg_threshold: str = "triangle"   # bgsub: "triangle" | "otsu" | "mad"
     bg_mad_k: float = 6.0            # bgsub + mad: T = median + k·1.4826·MAD
-    polarity: str = "auto"           # "auto" | "bright" (vật sáng hơn nền) | "dark" (vật tối hơn nền)
-    se_size: int = 5                 # Phần tử cấu trúc elip 5x5
+    polarity: str = "auto"           # "auto" | "bright" (objects brighter than background) | "dark" (objects darker)
+    se_size: int = 5                 # 5x5 elliptical structuring element
     open_iter: int = 1
     close_iter: int = 1
-    fill_holes: bool = True          # Lấp lỗ do lóa lớn hơn SE mà phép Closing không bít được
+    fill_holes: bool = True          # Fill glare holes larger than the SE that closing cannot seal
 
-    # ---------- Giai đoạn 3: Gán nhãn & Đặc trưng (Chương 1.2, 9, 10, 11.1) ----------
-    connectivity: int = 4            # 4 hoặc 8 lân cận
-    min_area_px: int = 100           # A_min tuyệt đối
-    min_area_frac: float = 0.0003    # A_min tương đối theo diện tích ảnh -> lấy max của hai giá trị
-    split_touching: bool = True      # Tách vật chạm nhau bằng Distance Transform + Watershed
-    solidity_thresh: float = 0.94    # Vùng có độ đặc (A / A_hull) thấp hơn ngưỡng này bị nghi là dính nhau
-    split_min_circularity: float = 0.35  # Chỉ Watershed vùng "giống cụm xu" (2 xu chạm nhau ~0.5; dải mép bàn < 0.3)
-    clear_border: bool = False       # Bỏ vùng chạm viền ảnh (vật thể phải nằm trọn trong khung – mép bàn, góc tối)
-    min_area_rel_median: float = 0.0 # Bỏ vùng có A < tỉ lệ này x trung vị diện tích các vật (vụn nhiễu). 0 = tắt
-    min_circularity: float = 0.0     # Lọc hình dạng: bỏ vùng có độ tròn thấp hơn (mép bàn, vệt bóng). 0 = tắt
-    max_area_frac: float = 1.0       # Bỏ vùng lớn hơn tỉ lệ này của ảnh (mảng nền bị tách nhầm). 1 = tắt
+    # ---------- Stage 3: Labeling & features (Lectures 1.2, 9, 10, 11.1) ----------
+    connectivity: int = 4            # 4- or 8-neighborhood
+    min_area_px: int = 100           # Absolute A_min
+    min_area_frac: float = 0.0003    # A_min relative to the image area -> the larger of the two is used
+    split_touching: bool = True      # Split touching objects with distance transform + watershed
+    solidity_thresh: float = 0.94    # Regions with solidity (A / A_hull) below this are suspected to be merged
+    split_min_circularity: float = 0.35  # Only watershed "coin-cluster-like" regions (2 touching coins ~0.5; table-edge strips < 0.3)
+    clear_border: bool = False       # Drop regions touching the image border (objects must lie fully inside – table edges, dark corners)
+    min_area_rel_median: float = 0.0 # Drop regions with A < this fraction x the median object area (noise crumbs). 0 = off
+    min_circularity: float = 0.0     # Shape filter: drop regions with lower circularity (table edges, shadow streaks). 0 = off
+    max_area_frac: float = 1.0       # Drop regions larger than this fraction of the image (mis-split background patches). 1 = off
 
-    # ---------- Giai đoạn 4: Phân loại (Chương 12) ----------
-    classify_method: str = "otsu"    # "otsu" (Otsu 1-D trên tập diện tích) | "mean" (bản gốc) | "gap"
-    min_size_ratio: float = 1.3      # A_max / A_min < ngưỡng này -> coi như chỉ có 1 nhóm kích thước
-    area_threshold: float | None = None  # Ngưỡng diện tích cố định (px) nếu đã hiệu chuẩn camera
+    # ---------- Stage 4: Classification (Lecture 12) ----------
+    classify_method: str = "otsu"    # "otsu" (1-D Otsu on the set of areas) | "mean" (original spec) | "gap"
+    min_size_ratio: float = 1.3      # A_max / A_min below this -> treated as a single size group
+    area_threshold: float | None = None  # Fixed area threshold (px) when the camera is calibrated
 
-    # ---------- Cài đặt ----------
-    backend: str = "numpy"           # "numpy" = thuật toán tự cài đặt | "opencv" = hàm thư viện
+    # ---------- Implementation ----------
+    backend: str = "numpy"           # "numpy" = own implementations | "opencv" = library functions
 
     def to_dict(self):
         return asdict(self)

@@ -1,8 +1,8 @@
-"""Lưu các ảnh đồng xu công khai có sẵn trong thư viện scikit-image vào data/public/.
+"""Save the public coin images bundled with scikit-image into data/public/.
 
-- skimage.data.coins(): ảnh xám 303x384, 24 đồng xu Hy Lạp cổ trên nền tối, ánh sáng KHÔNG đều.
-  Dùng làm bài kiểm tra "khó" cho phần hạn chế 7.2 (thử với --flatten).
-Chạy:  python tools/fetch_public.py
+- skimage.data.coins(): 303x384 gray image, 24 ancient Greek coins on a dark background, UNEVEN lighting.
+  Used as a "hard" test for limitation 7.2 (try it with --flatten).
+Run:  python tools/fetch_public.py
 """
 import json
 import sys
@@ -21,7 +21,7 @@ def main():
     gt = {"skimage_coins.png": {"count": 24}}
     with open(OUT / "ground_truth.json", "w", encoding="utf-8") as f:
         json.dump(gt, f, indent=2)
-    print(f"Đã lưu vào {OUT}")
+    print(f"Saved to {OUT}")
 
 
 if __name__ == "__main__":
