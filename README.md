@@ -50,6 +50,49 @@ All parameters were selected on the **dev** split; the **test** split was run on
 
 ---
 
+## Demo on real photos
+
+### The real-image pipeline step by step
+
+Test image `hf_0003`: all 8 coins found. The background-difference image D(n) separates the coins from the green mat; morphology, border clearing and the shape filter remove the mat texture and the table edge.
+
+![Real-image pipeline on hf_0003](outputs/real_showcase/hf_0003/00_pipeline_overview.png)
+
+The Large/Small labels on real photos are only illustrative: the dataset has no size labels, so classification is evaluated on the synthetic images.
+
+### Successes and failures
+
+Randomly chosen test images. **Red** = ground-truth box, **blue** = prediction.
+Top row: correct counts on a green mat and on yellow paper. Bottom row:
+- `hf_1355`: one small coin breaks into two fragments, giving one extra detection.
+- `hf_0024`: two coins on wood grain are missed. One merges with the grain into an irregular region (circularity 0.23); the other has circularity 0.59, just below the 0.6 threshold.
+- `hf_1153`: three close coins merge into one region (circularity 0.32). This is too irregular to be split by watershed, and the shape filter then rejects it.
+
+![Real-image examples](report/figures/real_examples.jpg)
+
+### The 4 real-image cases: baseline vs final configuration
+
+One random test image per case (R1–R4). Columns:
+1. input with ground truth;
+2. baseline Otsu mask, which floods the non-uniform background;
+3. difference image D(n);
+4. regions kept by configuration V;
+5. final detections.
+
+![Real-image cases R1–R4](report/figures/real_grid.jpg)
+
+<p align="center">
+  <img src="report/figures/chart_real_cases.png" alt="Exact-count accuracy and F1 per real-image case" width="720">
+</p>
+
+### Synthetic cases
+
+![Synthetic cases 1–4](report/figures/synth_grid.jpg)
+
+More results for every image (histograms, masks, morphology steps, feature tables) are in [`outputs/`](outputs/).
+
+---
+
 ## Pipeline
 
 ```
