@@ -3,3 +3,4 @@ numpy>=1.24
 matplotlib>=3.7
 scikit-image>=0.21
 pyarrow>=14          # only needed by tools/import_hf_coins.py
+ipykernel>=6         # only needed to run IMP302m_demo.ipynb

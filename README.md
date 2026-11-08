@@ -139,6 +139,18 @@ pip install -r requirements.txt
 
 The commands below are written for Windows. On Linux/macOS, replace `.\.venv\Scripts\python.exe` with `python` and `\` with `/`.
 
+## Demo notebook
+
+[`IMP302m_demo.ipynb`](IMP302m_demo.ipynb) runs the whole project from start to finish, with explanations, figures and tables:
+- every pipeline stage step by step;
+- the 4 synthetic cases;
+- verification against OpenCV;
+- the 480-image real test split (baseline A vs final V), per-case results and a dev-split ablation;
+- successes and failures, run time;
+- a cell for trying your own photo.
+
+The notebook is stored with its outputs, so GitHub shows the results without running it. To run it yourself, open it in VS Code or Jupyter with the `.venv` kernel (`ipykernel` is in `requirements.txt`). A full run takes about 5–10 minutes.
+
 ## Quick start
 
 ```powershell
@@ -212,6 +224,7 @@ ipm/                    Image-processing library
   evaluate.py           Comparison with ground truth: count, P/R/F1, IoU
   visualize.py          Output figures
 main.py                 Command-line interface
+IMP302m_demo.ipynb      End-to-end demo notebook (with outputs)
 tools/
   generate_synthetic.py  Generates the 4 synthetic cases with ground-truth masks
   import_hf_coins.py     Filters the real dataset and splits dev/test
@@ -220,6 +233,7 @@ tools/
   verify_impl.py         Compares own implementations with OpenCV
   make_report_figures.py Generates the report figures and charts
   make_overleaf_zip.py   Packs main.tex + figures/ for Overleaf
+  build_demo_notebook.py Builds IMP302m_demo.ipynb from its cell sources
   fetch_public.py        Saves skimage.data.coins()
 data/
   synthetic/            4 synthetic images + ground_truth.json + gt/ (masks)
